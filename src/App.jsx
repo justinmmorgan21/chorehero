@@ -13,7 +13,9 @@ const router = createBrowserRouter([
     element: (
       <div>
         <Header />
-        <Outlet />
+        <div className="main">
+          <Outlet />
+        </div>
         <Footer />
       </div>
     ),
