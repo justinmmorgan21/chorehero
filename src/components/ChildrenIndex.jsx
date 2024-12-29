@@ -5,6 +5,7 @@ export function ChildrenIndex( { children }) {
       { children.map( child => (
         <div key={child.id}>
           <p>{child.name}</p>
+          <p>parent_id: {child.parent_id}</p>
         </div>
       ))}
     </div>
