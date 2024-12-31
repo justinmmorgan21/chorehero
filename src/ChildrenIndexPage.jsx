@@ -7,6 +7,7 @@ import { ChildrenCreate } from "./components/ChildrenCreate";
 
 export function ChildrenIndexPage() {
   const children_results = useLoaderData();
+  console.log(children_results);
   const navigate = useNavigate();
 
   const handleShow = (child) => {
