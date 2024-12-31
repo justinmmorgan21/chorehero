@@ -41,12 +41,14 @@ html {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  padding-right: 12px;
 }
 
 .card {
-  padding: 8px;
+  padding: 8px 8px 16px 8px;
   border: solid 1px black;
   border-radius: 5px;
+  margin: 48px 0;
 }
 
 .card>div>div {

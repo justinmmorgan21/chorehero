@@ -10,8 +10,9 @@ export function ChildrenIndex( { children_results }) {
             <div className="child-info">
               <h2>{child.name}</h2>
               <p>username: {child.username}</p>
-              <p>birthdate: {child.birthdate}</p>
-              <p>points available: {child.points_available}</p>
+              {/* <p>birthdate: {child.birthdate}</p> */}
+              <p>age: {child.age}</p>
+              <p>points: {child.points_available}</p>
               <p>money banked: ${child.money_banked}</p>
             </div>
             <br />
@@ -20,9 +21,10 @@ export function ChildrenIndex( { children_results }) {
                 <h4>Monday</h4>
                 {child.monday_chores.map(chore => (
                   <div key={chore.id}>
-                  <input type="checkbox" /> {chore.title}
+                    <input type="checkbox" /> {chore.title}
                   </div>
                 ))}
+                <div>COMPLETE</div>
               </div>
               <br />
               <div>
