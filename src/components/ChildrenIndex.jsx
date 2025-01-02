@@ -1,4 +1,4 @@
-
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 export function ChildrenIndex( { children_results }) {
@@ -50,6 +50,10 @@ export function ChildrenIndex( { children_results }) {
         },
       },
     }));
+    const params = new FormData();
+    params.append(`done_${day.slice(0,3)}`, isChecked)
+    axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params);
+    
   };
   
   return (

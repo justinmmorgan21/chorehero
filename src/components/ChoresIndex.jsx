@@ -5,7 +5,8 @@ export function ChoresIndex( { chores } ) {
       { chores.map( chores => (
         <div key={chores.id}>
           <p>{chores.title}</p>
-          <p>parent_id: {chores.parent_id}</p>
+          <p>description: {chores.description || "-"}</p>
+          <br />
         </div>
       ))}
     </div>
