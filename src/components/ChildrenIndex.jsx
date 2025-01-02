@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 export function ChildrenIndex( { children_results }) {
-  console.log(children_results);
+  // console.log(children_results);
 
   const days = [
     "monday_chores",
@@ -14,46 +14,65 @@ export function ChildrenIndex( { children_results }) {
     "sunday_chores",
   ]
   
-  const [choreStates, setChoreStates] = useState(false);
+  const [choreStates, setChoreStates] = useState([]);
+  const [dayStates, setDayStates] = useState([]);
   
   useEffect(() => {
-    const initialChoreStates = {}
+    const initialChoreStates = {};
+    const initialDayStates = {};
     children_results.forEach( child => {
       initialChoreStates[child.id] = {};
-
-
+      initialDayStates[child.id] = {};
       days.forEach( day => {
+        let allChoresDone = true;
         if (child[day]) {
           initialChoreStates[child.id][day] = {};
           child[day].forEach( chore => {
             const matching_child_chore = child.child_chores.find( child_chore =>
               child_chore.chore_id === chore.id
             )
-            initialChoreStates[child.id][day][chore.id] = matching_child_chore[`done_${day.slice(0,3)}`]
-            console.log(initialChoreStates);
+            const choreDone = matching_child_chore[`done_${day.slice(0,3)}`];
+            initialChoreStates[child.id][day][chore.id] = choreDone;
+            if (!choreDone) {
+              allChoresDone = false;
+            }
           })
         }
+        initialDayStates[child.id][day] = allChoresDone;
       })
     })
-
     setChoreStates(initialChoreStates);
+    setDayStates(initialDayStates);
   }, [children_results]);
 
   const handleCheckboxChange = (childId, day, choreId, isChecked) => {
-    setChoreStates((prev) => ({
-      ...prev,
-      [childId]: {
-        ...prev[childId],
-        [day]: {
-          ...prev[childId][day],
-          [choreId]: isChecked,
+
+    setChoreStates((prevChoreStates) => {
+      const updatedChoreStates = {
+        ...prevChoreStates,
+        [childId]: {
+          ...prevChoreStates[childId],
+          [day]: {
+            ...prevChoreStates[childId][day],
+            [choreId]: isChecked,
+          },
         },
-      },
-    }));
+      }
+    
+      setDayStates((prevDayStates) => ({
+        ...prevDayStates,
+        [childId]: {
+          ...prevDayStates[childId],
+          [day]: Object.values(updatedChoreStates[childId][day]).every(value => value === true)
+        }
+      }));
+
+      return updatedChoreStates;
+    });
+
     const params = new FormData();
     params.append(`done_${day.slice(0,3)}`, isChecked)
     axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params);
-    
   };
   
   return (
@@ -79,8 +98,13 @@ export function ChildrenIndex( { children_results }) {
                       <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}
                     </div>
                   ))}
+                  <div style={{ color: 'green', margin: '12px'}}>{dayStates[child.id]?.[day] ? "COMPLETED" : ""}</div>
                 </div>
               ))}
+              <div>
+                Weekly Chores
+
+              </div>
               <br />
             </div>
           </div>
