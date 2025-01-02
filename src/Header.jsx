@@ -8,7 +8,6 @@ export function Header() {
 
   const getParent = () => {
     axios.get("http://localhost:3000/parents/current.json").then(response => {
-      console.log(response.data);
       setCurrentParent(response.data);
     })
   }
