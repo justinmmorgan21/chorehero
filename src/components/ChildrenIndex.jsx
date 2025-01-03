@@ -109,7 +109,7 @@ export function ChildrenIndex( { children_results }) {
                       <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
                     </div>
                   ))}
-                  <div style={{ color: 'green', margin: '12px'}}>{dayStates[child.id]?.[day] ? "COMPLETED" : ""}</div>
+                  <div style={{ color: 'green', margin: '12px'}}>{child[day].length > 0 ? (dayStates[child.id]?.[day] ? "COMPLETED" : "") : ""}</div>
                 </div>
               ))}
               <div>
