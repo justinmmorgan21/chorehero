@@ -3,7 +3,6 @@ export function ChildrenCreate( { onCreate } ) {
   const handleSubmit = event => {
     event.preventDefault();
     const params = new FormData(event.target);
-    console.log(params);
     onCreate(params, () => event.target.reset());
   }
 

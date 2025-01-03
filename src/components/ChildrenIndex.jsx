@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 export function ChildrenIndex( { children_results }) {
-  // console.log(children_results);
 
   const days = [
     "monday_chores",
@@ -46,7 +45,7 @@ export function ChildrenIndex( { children_results }) {
   }, [children_results]);
 
   const handleCheckboxChange = (childId, day, choreId, isChecked) => {
-
+    const daysToUpdate = [day];
     setChoreStates((prevChoreStates) => {
       const updatedChoreStates = {
         ...prevChoreStates,
@@ -58,6 +57,16 @@ export function ChildrenIndex( { children_results }) {
           },
         },
       }
+
+      const child = children_results.find(child => child.id === childId);
+      if (child[day].find(chore => chore.id === choreId).one_timer) {
+        days.forEach(oneDay => {
+            if (choreId in updatedChoreStates[childId][oneDay]) {
+              updatedChoreStates[childId][oneDay][choreId] = isChecked;
+              daysToUpdate.push(oneDay);
+            }
+        })
+      }
     
       setDayStates((prevDayStates) => ({
         ...prevDayStates,
@@ -67,12 +76,14 @@ export function ChildrenIndex( { children_results }) {
         }
       }));
 
+      const params = new FormData();
+      daysToUpdate.forEach(oneDay => {
+        params.append(`done_${oneDay.slice(0,3)}`, isChecked)
+      })
+      axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params);
+
       return updatedChoreStates;
     });
-
-    const params = new FormData();
-    params.append(`done_${day.slice(0,3)}`, isChecked)
-    axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params);
   };
   
   return (
@@ -95,7 +106,7 @@ export function ChildrenIndex( { children_results }) {
                   <h4>{day.split("_")[0].slice(0,1).toUpperCase() + day.split("_")[0].slice(1)}</h4>
                   {child[day].map( chore => (
                     <div key={chore.id}>
-                      <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}
+                      <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
                     </div>
                   ))}
                   <div style={{ color: 'green', margin: '12px'}}>{dayStates[child.id]?.[day] ? "COMPLETED" : ""}</div>
