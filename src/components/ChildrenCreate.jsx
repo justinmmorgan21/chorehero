@@ -23,9 +23,10 @@ export function ChildrenCreate( { onCreate } ) {
           Password confirmation: <input name="password_confirmation" type="password" />
         </div>
         <div>
-          <label htmlFor="birthday">Birthdate:</label>
+          <label htmlFor="birthday">Birthdate: </label>
           <input type="date" id="birthday" name="birthdate" />
         </div>
+        <br />
         <button type="submit">Create</button>
       </form>
     </div>

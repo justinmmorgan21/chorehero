@@ -15,13 +15,16 @@ export function ChildrenIndex( { children_results }) {
   
   const [choreStates, setChoreStates] = useState([]);
   const [dayStates, setDayStates] = useState([]);
+  const [bonusPoints, setBonusPoints] = useState([])
   
   useEffect(() => {
     const initialChoreStates = {};
     const initialDayStates = {};
+    const initialBonusPoints = {};
     children_results.forEach( child => {
       initialChoreStates[child.id] = {};
       initialDayStates[child.id] = {};
+      initialBonusPoints[child.id] = 0;
       days.forEach( day => {
         let allChoresDone = true;
         if (child[day]) {
@@ -42,6 +45,7 @@ export function ChildrenIndex( { children_results }) {
     })
     setChoreStates(initialChoreStates);
     setDayStates(initialDayStates);
+    setBonusPoints(initialBonusPoints);
   }, [children_results]);
 
   const handleCheckboxChange = (childId, day, choreId, isChecked) => {
@@ -85,42 +89,73 @@ export function ChildrenIndex( { children_results }) {
       return updatedChoreStates;
     });
   };
+
+  const totalPoints = chores => {
+    return chores.reduce((acc, chore) => acc + chore.points_awarded, 0);
+  }
+
+  const handleChange = (childId, bonusPoints) => {
+    console.log(bonusPoints);
+    setBonusPoints((prevBonusPoints) => ({
+      ...prevBonusPoints,
+      [childId]: bonusPoints || 0
+    }))
+  }
   
   return (
     <div>
-      <h1>All children</h1>
-      <div>
-        {children_results.map( child => (
-          <div key={child.id} className="card">
-            <div className="child-info">
-              <h2>{child.name}</h2>
-              <p>username: {child.username}</p>
-              <p>age: {child.age}</p>
-              <p>points: {child.points_available}</p>
-              <p>money banked: ${child.money_banked}</p>
-            </div>
-            <br />
-            <div style={{ display:"flex", flexDirection:"row"}}>
-              {days.map( day => (
-                <div key={day}>
-                  <h4>{day.split("_")[0].slice(0,1).toUpperCase() + day.split("_")[0].slice(1)}</h4>
-                  {child[day].map( chore => (
-                    <div key={chore.id}>
-                      <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
-                    </div>
-                  ))}
-                  <div style={{ color: 'green', margin: '12px'}}>{child[day].length > 0 ? (dayStates[child.id]?.[day] ? "COMPLETED" : "") : ""}</div>
-                </div>
-              ))}
-              <div>
-                Weekly Chores
-
+      {children_results.map( child => (
+      <div key={child.id} className="card">
+        <div className="child-info">
+          <h2>{child.name}</h2>
+          <p>username: {child.username}</p>
+          <p>age: {child.age}</p>
+          <p>points: {child.points_available}</p>
+          <p>money banked: ${child.money_banked}</p>
+        </div>
+        <br />
+        <div style={{ display:"flex", flexDirection:"row", boxShadow:'2px 2px 2px gray' }}>
+          {days.map( day => (
+          <div key={day} style={{ display:'flex', flexDirection:'column', alignItems:'center'}}>
+            <h4 style={{ textAlign:'center' }}>{day.split("_")[0].slice(0,1).toUpperCase() + day.split("_")[0].slice(1)}</h4>
+            <div>
+              {child[day].map( chore => (
+              <div key={chore.id} >
+                <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
               </div>
-              <br />
+              ))}
+            </div>
+            <p style={{ color: 'green', fontWeight:'bold', marginTop:'12px'}}>{child[day].length > 0 ? (dayStates[child.id]?.[day] ? "COMPLETED" : "") : ""}</p>
+          </div>
+          ))}
+          <div>
+            <h3 style={{marginBottom: '12px'}}>Weekly Chores</h3>
+            <div style={{ display:'flex', flexDirection:'column' }}>
+              <div style={{ display:'flex', flexDirection:'row', justifyContent:'space-between', marginBottom:'6px', textDecoration: 'underline'}}>
+                <div>Chore</div>
+                <div>Points</div>
+              </div>
+              {child.chores.map(chore => (
+              <div key={chore.id} style={{ display:'flex', flexDirection:'row', justifyContent:'space-between', marginBottom:'6px'}}>
+                <div>{chore.title}</div>
+                <div>{chore.points_awarded}</div>
+              </div>
+              ))}
+              <hr />
+              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{totalPoints(child.chores)}</p>
+              <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
+                <input type="text" size="3" onChange={e=>handleChange(child.id, e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
+              </div>
+              <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
+                <p style={{  }}>total points: {parseInt(totalPoints(child.chores)) + parseInt(bonusPoints[child.id])}</p>
+              </div>
+              <button style={{alignSelf:'end'}}>Approve</button>
             </div>
           </div>
-        ))}
+          <br />
+        </div>
       </div>
+      ))}
     </div>
   );
 }
