@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 
 export function ChildrenIndex( { children_results }) {
 
+  // console.log("children_results: ", children_results);
+
   const days = [
     "monday_chores",
     "tuesday_chores",
@@ -16,15 +18,18 @@ export function ChildrenIndex( { children_results }) {
   const [choreStates, setChoreStates] = useState([]);
   const [dayStates, setDayStates] = useState([]);
   const [bonusPoints, setBonusPoints] = useState([])
+  const [doneWeekly, setDoneWeekly] = useState([]);
   
   useEffect(() => {
     const initialChoreStates = {};
     const initialDayStates = {};
     const initialBonusPoints = {};
+    const initialDoneWeekly = {};
     children_results.forEach( child => {
       initialChoreStates[child.id] = {};
       initialDayStates[child.id] = {};
       initialBonusPoints[child.id] = 0;
+      initialDoneWeekly[child.id] = {};
       days.forEach( day => {
         let allChoresDone = true;
         if (child[day]) {
@@ -42,10 +47,12 @@ export function ChildrenIndex( { children_results }) {
         }
         initialDayStates[child.id][day] = allChoresDone;
       })
+      initialDoneWeekly[child.id] = child.chores_done_weekly;
     })
     setChoreStates(initialChoreStates);
     setDayStates(initialDayStates);
     setBonusPoints(initialBonusPoints);
+    setDoneWeekly(initialDoneWeekly);
   }, [children_results]);
 
   const handleCheckboxChange = (childId, day, choreId, isChecked) => {
@@ -84,18 +91,24 @@ export function ChildrenIndex( { children_results }) {
       daysToUpdate.forEach(oneDay => {
         params.append(`done_${oneDay.slice(0,3)}`, isChecked)
       })
-      axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params);
+      axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params).then(() => {
+        axios.get( `http://localhost:3000/children/${childId}.json`).then(response => {
+          setDoneWeekly((prevDoneWeekly) => ({
+            ...prevDoneWeekly,
+            [childId]: response.data.chores_done_weekly
+          }))
+        })
+      });
 
       return updatedChoreStates;
     });
   };
 
   const totalPoints = chores => {
-    return chores.reduce((acc, chore) => acc + chore.points_awarded, 0);
+    return chores ? chores.reduce((acc, chore) => acc + chore.points_awarded, 0) : 0;
   }
 
   const handleChange = (childId, bonusPoints) => {
-    console.log(bonusPoints);
     setBonusPoints((prevBonusPoints) => ({
       ...prevBonusPoints,
       [childId]: bonusPoints || 0
@@ -135,19 +148,19 @@ export function ChildrenIndex( { children_results }) {
                 <div>Chore</div>
                 <div>Points</div>
               </div>
-              {child.chores.map(chore => (
+              {doneWeekly[child.id]?.map(chore => (
               <div key={chore.id} style={{ display:'flex', flexDirection:'row', justifyContent:'space-between', marginBottom:'6px'}}>
                 <div>{chore.title}</div>
                 <div>{chore.points_awarded}</div>
               </div>
               ))}
               <hr />
-              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{totalPoints(child.chores)}</p>
+              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{totalPoints(doneWeekly[child.id])}</p>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
                 <input type="text" size="3" onChange={e=>handleChange(child.id, e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
               </div>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
-                <p style={{  }}>total points: {parseInt(totalPoints(child.chores)) + parseInt(bonusPoints[child.id])}</p>
+                <p style={{  }}>total points: {parseInt(totalPoints(doneWeekly[child.id])) + parseInt(bonusPoints[child.id])}</p>
               </div>
               <button style={{alignSelf:'end'}}>Approve</button>
             </div>
