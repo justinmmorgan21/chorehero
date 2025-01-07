@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export function ChildrenIndex( { children_results }) {
+export function ChildrenIndex({ children_results: initialChildrenResults }) {
 
-  // console.log("children_results: ", children_results);
+  const [childrenResults, setChildrenResults] = useState(initialChildrenResults);
+
+  useEffect(() => setChildrenResults(initialChildrenResults), [initialChildrenResults]);
 
   const days = [
     "monday_chores",
@@ -13,22 +15,28 @@ export function ChildrenIndex( { children_results }) {
     "friday_chores",
     "saturday_chores",
     "sunday_chores",
-  ]
+  ];
   
   const [choreStates, setChoreStates] = useState([]);
   const [dayStates, setDayStates] = useState([]);
-  const [bonusPoints, setBonusPoints] = useState([])
+  const [bonusPoints, setBonusPoints] = useState([]);
   const [doneWeekly, setDoneWeekly] = useState([]);
+
+  useEffect(() => {
+    const initialBonusPoints = {};
+    childrenResults.forEach( child => {
+      initialBonusPoints[child.id] = 0;
+    });
+    setBonusPoints(initialBonusPoints);
+  }, []);
   
   useEffect(() => {
     const initialChoreStates = {};
     const initialDayStates = {};
-    const initialBonusPoints = {};
     const initialDoneWeekly = {};
-    children_results.forEach( child => {
+    childrenResults.forEach( child => {
       initialChoreStates[child.id] = {};
       initialDayStates[child.id] = {};
-      initialBonusPoints[child.id] = 0;
       initialDoneWeekly[child.id] = {};
       days.forEach( day => {
         let allChoresDone = true;
@@ -37,87 +45,62 @@ export function ChildrenIndex( { children_results }) {
           child[day].forEach( chore => {
             const matching_child_chore = child.child_chores.find( child_chore =>
               child_chore.chore_id === chore.id
-            )
+            );
             const choreDone = matching_child_chore[`done_${day.slice(0,3)}`];
             initialChoreStates[child.id][day][chore.id] = choreDone;
             if (!choreDone) {
               allChoresDone = false;
             }
-          })
+          });
         }
         initialDayStates[child.id][day] = allChoresDone;
-      })
+      });
       initialDoneWeekly[child.id] = child.chores_done_weekly;
-    })
+    });
     setChoreStates(initialChoreStates);
     setDayStates(initialDayStates);
-    setBonusPoints(initialBonusPoints);
     setDoneWeekly(initialDoneWeekly);
-  }, [children_results]);
+  }, [childrenResults]);
 
   const handleCheckboxChange = (childId, day, choreId, isChecked) => {
-    const daysToUpdate = [day];
-    setChoreStates((prevChoreStates) => {
-      const updatedChoreStates = {
-        ...prevChoreStates,
-        [childId]: {
-          ...prevChoreStates[childId],
-          [day]: {
-            ...prevChoreStates[childId][day],
-            [choreId]: isChecked,
-          },
-        },
-      }
-
-      const child = children_results.find(child => child.id === childId);
-      if (child[day].find(chore => chore.id === choreId).one_timer) {
-        days.forEach(oneDay => {
-            if (choreId in updatedChoreStates[childId][oneDay]) {
-              updatedChoreStates[childId][oneDay][choreId] = isChecked;
-              daysToUpdate.push(oneDay);
-            }
-        })
-      }
-    
-      setDayStates((prevDayStates) => ({
-        ...prevDayStates,
-        [childId]: {
-          ...prevDayStates[childId],
-          [day]: Object.values(updatedChoreStates[childId][day]).every(value => value === true)
-        }
-      }));
-
-      const params = new FormData();
-      daysToUpdate.forEach(oneDay => {
-        params.append(`done_${oneDay.slice(0,3)}`, isChecked)
-      })
-      axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params).then(() => {
-        axios.get( `http://localhost:3000/children/${childId}.json`).then(response => {
-          setDoneWeekly((prevDoneWeekly) => ({
-            ...prevDoneWeekly,
-            [childId]: response.data.chores_done_weekly
-          }))
-        })
+    const params = new FormData();
+    params.append(`done_${day.slice(0,3)}`, isChecked);
+    axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params).then(() => {
+      axios.get("http://localhost:3000/children.json").then((response) => {
+        setChildrenResults(response.data);
       });
-
-      return updatedChoreStates;
     });
   };
 
-  const totalPoints = chores => {
-    return chores ? chores.reduce((acc, chore) => acc + chore.points_awarded, 0) : 0;
-  }
+  const chorePoints = (child) => {
+    return doneWeekly[child?.id] ? doneWeekly[child.id].reduce((acc, chore) => acc + chore.points_awarded, 0) : 0;
+  };
+
+  const totalPoints = (child) => {
+    return parseInt(chorePoints(child)) + parseInt(bonusPoints[child.id]);
+  };
 
   const handleChange = (childId, bonusPoints) => {
     setBonusPoints((prevBonusPoints) => ({
       ...prevBonusPoints,
       [childId]: bonusPoints || 0
-    }))
-  }
+    }));
+  };
+
+  const addPoints = (child) => {
+    const params = new FormData();
+    params.append("points_available", child.points_available + totalPoints(child));
+    axios.patch(`http://localhost:3000/children/${child.id}.json`, params).then((response) => {
+      setChildrenResults((prevChildrenResults) => ({
+        ...prevChildrenResults,
+        [child.id]: response.data
+      }));
+    });
+  };
   
   return (
     <div>
-      {children_results.map( child => (
+      {childrenResults.map( child => (
       <div key={child.id} className="card">
         <div className="child-info">
           <h2>{child.name}</h2>
@@ -155,14 +138,14 @@ export function ChildrenIndex( { children_results }) {
               </div>
               ))}
               <hr />
-              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{totalPoints(doneWeekly[child.id])}</p>
+              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{chorePoints(child)}</p>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
                 <input type="text" size="3" onChange={e=>handleChange(child.id, e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
               </div>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
-                <p style={{  }}>total points: {parseInt(totalPoints(doneWeekly[child.id])) + parseInt(bonusPoints[child.id])}</p>
+                <p style={{  }}>total points: {totalPoints(child)}</p>
               </div>
-              <button style={{alignSelf:'end'}}>Approve</button>
+              <button style={{alignSelf:'end'}} onClick={() => addPoints(child)}>Approve</button>
             </div>
           </div>
           <br />

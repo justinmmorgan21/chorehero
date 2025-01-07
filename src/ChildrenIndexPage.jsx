@@ -52,11 +52,11 @@ export function ChildrenIndexPage() {
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
         <h1>All children</h1>
         <div>
-          <button onClick={()=>setModalVisible(true)} style={{ fontSize:'1.2em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
+          <button onClick={()=>setModalVisible(true)} style={{ fontSize:'1em', padding:'6px 8px', border:'1px solid black', borderRadius:'8px', boxShadow:'1px 1px', background:'gray', color:'white'}}>+ add child</button>
         </div>
       </div>
       <ChildrenIndex children_results={children_results} onShow={handleShow} />
-      <button onClick={()=>setModalVisible(true)} style={{ fontSize:'1.2em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
+      <button onClick={()=>setModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
       <Modal onClose={handleClose} show={modalVisible}>
         <ChildrenCreate onCreate={handleCreate} />
       </Modal>
