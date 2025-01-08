@@ -1,11 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export function ChildrenIndex({ children_results: initialChildrenResults }) {
+export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView }) {
 
-  const [childrenResults, setChildrenResults] = useState(initialChildrenResults);
+  const [childrenData, setChildrenData] = useState(initialChildrenData);
 
-  useEffect(() => setChildrenResults(initialChildrenResults), [initialChildrenResults]);
+  useEffect(() => setChildrenData(initialChildrenData), [initialChildrenData]);
 
   const days = [
     "monday_chores",
@@ -24,7 +24,7 @@ export function ChildrenIndex({ children_results: initialChildrenResults }) {
 
   useEffect(() => {
     const initialBonusPoints = {};
-    childrenResults.forEach( child => {
+    childrenData.forEach( child => {
       initialBonusPoints[child.id] = 0;
     });
     setBonusPoints(initialBonusPoints);
@@ -34,7 +34,7 @@ export function ChildrenIndex({ children_results: initialChildrenResults }) {
     const initialChoreStates = {};
     const initialDayStates = {};
     const initialDoneWeekly = {};
-    childrenResults.forEach( child => {
+    childrenData.forEach( child => {
       initialChoreStates[child.id] = {};
       initialDayStates[child.id] = {};
       initialDoneWeekly[child.id] = {};
@@ -60,14 +60,28 @@ export function ChildrenIndex({ children_results: initialChildrenResults }) {
     setChoreStates(initialChoreStates);
     setDayStates(initialDayStates);
     setDoneWeekly(initialDoneWeekly);
-  }, [childrenResults]);
+  }, [childrenData]);
 
   const handleCheckboxChange = (childId, day, choreId, isChecked) => {
     const params = new FormData();
-    params.append(`done_${day.slice(0,3)}`, isChecked);
+    const child = childrenData.find(child => child.id === childId);
+    const chore = child.chores.find(chore => chore.id == choreId);
+    {chore.one_timer ? 
+    (
+      days.map( day => {
+        if (chore[day.split("_")[0]]) {
+          params.append(`done_${day.slice(0,3)}`, isChecked)
+        }
+      })
+    ) 
+      : 
+    (
+      params.append(`done_${day.slice(0,3)}`, isChecked)
+    )
+    }
     axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params).then(() => {
       axios.get("http://localhost:3000/children.json").then((response) => {
-        setChildrenResults(response.data);
+        setChildrenData(response.data);
       });
     });
   };
@@ -91,16 +105,17 @@ export function ChildrenIndex({ children_results: initialChildrenResults }) {
     const params = new FormData();
     params.append("points_available", child.points_available + totalPoints(child));
     axios.patch(`http://localhost:3000/children/${child.id}.json`, params).then((response) => {
-      setChildrenResults((prevChildrenResults) => ({
-        ...prevChildrenResults,
-        [child.id]: response.data
-      }));
+      setChildrenData((prevChildrenData) =>
+        prevChildrenData.map((childData) =>
+          childData.id === child.id ? response.data : childData
+        )
+      );
     });
   };
   
   return (
     <div>
-      {childrenResults.map( child => (
+      {childrenData.map( child => (
       <div key={child.id} className="card">
         <div className="child-info">
           <h2>{child.name}</h2>
@@ -108,6 +123,8 @@ export function ChildrenIndex({ children_results: initialChildrenResults }) {
           <p>age: {child.age}</p>
           <p>points: {child.points_available}</p>
           <p>money banked: ${child.money_banked}</p>
+          <button style={{padding:'3px 2px'}} onClick={()=>onChildChoresModify(child)}>Edit {child.name}{child.name.slice(-1) === "s" ? `'` : `'s`} Chores</button>
+          <button style={{padding:'3px 2px'}} onClick={()=>onChildChoresHistoryView(child)}>View {child.name}{child.name.slice(-1) === "s" ? `'` : `'s`} Chore History</button>
         </div>
         <br />
         <div style={{ display:"flex", flexDirection:"row", boxShadow:'2px 2px 2px gray' }}>
