@@ -3,20 +3,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function ChildChoreUpdate( { child, chore, onClose } ) {
-  // const [currentParent, setCurrentParent] = useState({});
-
-  // const getParent = () => {
-  //   axios.get("http://localhost:3000/parents/current.json").then(response => {
-  //     setCurrentParent(response.data);
-  //   })
-  // }
-
-  // useEffect(getParent, []);
 
   const [isOneTimerChecked, setIsOneTimerChecked] = useState(chore.one_timer);
   const [isDayChecked, setIsDayChecked] = useState({});
+  const [isChildChecked, setIsChildChecked] = useState({});
   const [description, setDescription] = useState(chore.description);
   const [points, setPoints] = useState(chore.points_awarded);
+  const [checkedChildCount, setCheckedChildCount] = useState(0);
 
   const days = [
     "monday",
@@ -34,6 +27,12 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
       initialDayCheckedStates[day] = chore[day];
     });
     setIsDayChecked(initialDayCheckedStates);
+    const initialChildCheckedStates = {};
+    chore.children.map( oneChild => {
+      if (oneChild.id !== child.id) {
+        initialChildCheckedStates[oneChild.id] = false;
+      }
+    });
   }, []);
 
   const navigate = useNavigate();
@@ -49,37 +48,29 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
     if (!params.has("one_timer")) {
       params.append("one_timer", false);
     }
-    for (const [key, value] of params.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-    
-    console.log("other children: ", countOtherChildren());
-    // console.log("parent children: ", currentParent.children.count)
-    if (countOtherChildren() == 0) {//} || countOtherChildren() + 1 == currentParent.children.count) {  //if no other children sharing the chore, edit that chore  OR if all selected, edit that chore
-      axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(response => {
-        console.log("response: ", response.data);
+    params.append("title", chore.title);
+    if (countOtherChildren() == 0 || countOtherChildren() == checkedChildCount) {  // if no other children sharing the chore  OR  if all selected, edit that chore
+      axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
         onClose();
         navigate(`/children`);
       })
-    } 
-    // else {   // if other children share the chore
-    //   if () { // if none checked, make new chore with new values and change childchore for THIS child to new chore_id
+    }
+    else {   // if other children share the chore
+      if (checkedChildCount == 0) { // if none checked, make new chore with new values and change childchore for THIS child to new chore_id
+        axios.post(`http://localhost:3000/chores.json`, params).then((response) => {
+          const params = new FormData();
+          params.append("new_chore_id", response.data.id);
+          axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(() => {
+            onClose();
+            navigate(`/children`);
+          })
+        })
+      } 
+      // else if () { // if 1 to less than all selected, make new chore, and change childchore for EACH child selected to new chore_id
       
-    //   } else if () { // if 1 to less than all selected, make new chore, and change childchore for EACH child selected to new chore_id
-      
-    //   }
-    // }
+      // }
+    }
   }
-
-  // const handleSubmit = (choreId) => {
-  //   const params = new FormData();
-  //   params.append("active", false);
-  //   params.append("date_inactivated", new Date());
-  //   axios.patch(`http://localhost:3000/child_chores/${child.id}/${choreId}.json`, params).then( (response) => {
-  //     console.log(response.data);
-
-  //   })
-  // }
 
   const countOtherChildren = () => {
     let count = 0;
@@ -88,31 +79,35 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
     })
     return count;
   }
+
   return (
     <div>
       <h1>{child.name} - {chore.title}</h1>
       <br />
       <form onSubmit={handleSubmit}>
         <label htmlFor="description">description:</label><br />
-        <textarea name="description" id="description" rows="4" value={description} onChange={(e)=>setDescription(e.target.value)}/>
+        <textarea name="description" id="description" rows="4" value={description || ""} onChange={(e)=>setDescription(e.target.value)}/>
         <br />
         <br />
         {days.map( day => (
           <div key={day}>
-            <input type="checkbox" checked={isDayChecked[day]} name={day} onChange={()=>setIsDayChecked((prevCheckedStates) => ({...prevCheckedStates, [day]: !isDayChecked[day]}))}/> {day}
+            <input type="checkbox" checked={isDayChecked[day] || false} name={day} onChange={()=>setIsDayChecked((prevCheckedStates) => ({...prevCheckedStates, [day]: !isDayChecked[day]}))}/> {day}
           </div>
         ))}
-        <input type="checkbox" checked={isOneTimerChecked} name="one_timer" onChange={()=>setIsOneTimerChecked(!isOneTimerChecked)}/> one-timer (*)
+        <input type="checkbox" checked={isOneTimerChecked || false} name="one_timer" onChange={()=>setIsOneTimerChecked(!isOneTimerChecked)}/> one-timer (*)
         <br />
         <br />
-        <div>Points earned for chore: <input type="text" name="points_awarded" value={points} size="6" onChange={(e)=>setPoints(e.target.value)}/></div>
+        <div>Points earned for chore: <input type="text" name="points_awarded" value={points || 0} size="6" onChange={(e)=>setPoints(e.target.value)}/></div>
         <br />
         {countOtherChildren() != 0 ?
           <div>
             <div>Also modify this chore for: </div>
-            {chore.children.map((oneChild, i) => (
+            {chore.children.map((oneChild) => (
               <div key={oneChild.id}>
-                {oneChild.id !== child.id ? <div><input type="checkbox" name={"child" + i} /> {oneChild.name}</div> : null}
+                {oneChild.id !== child.id ? <div><input type="checkbox" name={oneChild.id} value={isChildChecked[oneChild.id]} onChange={()=>{
+                  setIsChildChecked((prevStates)=>({...prevStates, [oneChild.id]: !isChildChecked[oneChild.id]}));
+                  setCheckedChildCount(checkedChildCount + !isChildChecked[oneChild.id] ? 1 : -1);
+                }}/> {oneChild.name}</div> : null}
               </div>
             ))}
             <br />
