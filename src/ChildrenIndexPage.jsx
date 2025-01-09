@@ -6,6 +6,7 @@ import { Modal } from "./components/Modal";
 import { ChildrenCreate } from "./components/ChildrenCreate";
 import { ChildChoresListModify } from "./components/ChildChoresListModify";
 import { ChildChoresHistory } from "./components/ChildChoresHistory";
+import { ChildChoreUpdate } from "./components/ChildChoreUpdate";
 
 export function ChildrenIndexPage() {
   const childrenData = useLoaderData();
@@ -19,8 +20,9 @@ export function ChildrenIndexPage() {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
   const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
+  const [choreEditModalVisible, setChoreEditModalVisible] = useState(false);
   const [currentChild, setCurrentChild] = useState(null);
-  // const [currentProduct, setCurrentProduct] = useState({});
+  const [currentChore, setCurrentChore] = useState(null);
 
   const handleCreate = (params, successCallback) => {
     axios.post("http://localhost:3000/children.json", params).then(
@@ -55,6 +57,9 @@ export function ChildrenIndexPage() {
   const handleChoresViewClose = () => {
     setChoreHistoryModalVisible(false);
   }
+  const handleChildChoreEditClose = () => {
+    setChoreEditModalVisible(false);
+  }
 
   const handleChildChoresModify = (child) => {
     setCurrentChild(child);
@@ -64,6 +69,12 @@ export function ChildrenIndexPage() {
   const handleChildChoresHistoryView = (child) => {
     setCurrentChild(child);
     setChoreHistoryModalVisible(true);
+  }
+
+  const handleChoreUpdate = (child, chore) => {
+    setChoreEditModalVisible(true);
+    setCurrentChild(child);
+    setCurrentChore(chore);
   }
 
 
@@ -81,10 +92,13 @@ export function ChildrenIndexPage() {
         <ChildrenCreate onCreate={handleCreate} />
       </Modal>
       <Modal onClose={handleModifyClose} show={modifyListModalVisible}>
-        <ChildChoresListModify child={currentChild} />
+        <ChildChoresListModify child={currentChild} onClose={handleModifyClose} onUpdate={handleChoreUpdate}/>
       </Modal>
       <Modal onClose={handleChoresViewClose} show={choreHistoryModalVisible}>
-        <ChildChoresHistory child={currentChild} />
+        <ChildChoresHistory child={currentChild} onClose={handleChoresViewClose}/>
+      </Modal>
+      <Modal onClose={handleChildChoreEditClose} show={choreEditModalVisible}>
+        <ChildChoreUpdate child={currentChild} chore={currentChore} onClose={handleChildChoreEditClose}/>
       </Modal>
     </div>
   );

@@ -1,8 +1,7 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
-export function ChildChoresHistory( { child } ) {
+export function ChildChoresHistory( { child, onClose } ) {
 
   const days = [
     "monday",
@@ -14,19 +13,22 @@ export function ChildChoresHistory( { child } ) {
     "sunday",
   ];
 
+  const formatDate = (child, chore, activated) => {
+    const date = activated ? new Date(child.child_chores.find(child_chore => (child_chore.chore_id === chore.id)).date_activated) :
+      new Date(child.child_chores.find(child_chore => (child_chore.chore_id === chore.id)).date_inactivated);
+    const dateString = date.toISOString().split("T")[0];
+    return `${dateString.slice(5,7)}/${dateString.slice(8,10)}/${dateString.slice(0,4)}`;
+  }
+
   const navigate = useNavigate();
-  // const handleSubmit = event => {
-  //   event.preventDefault();
-  //   const params = new FormData(event.target);
-  //   onCreate(params, () => event.target.reset());
-  // }
 
   const handleReactivate = (choreId) => {
     const params = new FormData();
-    params.append("active", false);
-    params.append("date_inactivated", new Date());
+    params.append("active", true);
+    params.append("date_activated", new Date());
     axios.patch(`http://localhost:3000/child_chores/${child.id}/${choreId}.json`, params).then( (response) => {
       console.log(response.data);
+      onClose();
       navigate(`/children`);
     })
   }
@@ -35,41 +37,43 @@ export function ChildChoresHistory( { child } ) {
     <div>
       <h1>Chore History - {child.name}</h1>
       <br />
+      <h3 style={{ marginBottom: '8px'}}>Current</h3>
+      <ul>
+
+      {child.active_chores.map( chore => (
+        <li key={chore.id} >
+          <div style={{ display:'flex', flexDirection:'row', gap:'6px'}}>
+            <div style={{fontWeight:'bold'}}> {chore.title} </div> ,
+            {days.map( day => ( 
+              chore[`${day}`] ?
+              (<div key={day}>&lt;{day}&gt;</div>) : (null)
+            ))} ,
+            <div> points: {chore.points_awarded} , </div>
+            <div>{formatDate(child, chore, true)} - </div>
+          </div>
+          <br />
+        </li>
+      ))}
+      </ul>
+      <hr />
+      <br />
+      <h3 style={{ marginBottom: '8px'}}>Previous</h3>
       {child.inactive_chores.map( chore => (
         <div key={chore.id} >
           <div style={{ display:'flex', flexDirection:'row', gap:'6px'}}>
             <button >Edit</button>
             <button onClick={() => handleReactivate(chore.id)}>Reactivate</button>
-            <div>{chore.title} -- </div>
+            <div style={{fontWeight:'bold', marginLeft:'6px'}}> {chore.title} </div> ,
             {days.map( day => ( 
               chore[`${day}`] ?
               (<div key={day}>&lt;{day}&gt;</div>) : (null)
-              ))} --
-            <div> points: {chore.points_awarded}</div>
+              ))} ,
+            <div> points: {chore.points_awarded} , </div>
+            <div>{formatDate(child, chore, true)} - {formatDate(child, chore, false)}</div>
           </div>
           <br />
         </div>
       ))}
-      {/* <form onSubmit={handleSubmit}>
-        <div>
-          Name: <input name="name" type="text" />
-        </div>
-        <div>
-          Username: <input name="username" type="text" />
-        </div>
-        <div>
-          Password: <input name="password" type="password" />
-        </div>
-        <div>
-          Password confirmation: <input name="password_confirmation" type="password" />
-        </div>
-        <div>
-          <label htmlFor="birthday">Birthdate: </label>
-          <input type="date" id="birthday" name="birthdate" />
-        </div>
-        <br />
-        <button type="submit">Create</button>
-      </form> */}
     </div>
   );
 }
