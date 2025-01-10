@@ -1,7 +1,6 @@
 import { FaCheck } from "react-icons/fa";
 
 export function ChoresIndex( { chores } ) {
-  console.log("chores: ", chores);
 
   const days = [
     "monday",
@@ -34,6 +33,13 @@ export function ChoresIndex( { chores } ) {
               ))}
             </div>
             <div>points: {chore.points_awarded}</div>
+            <br />
+            Assigned to:
+            {chore.children.map( child => (
+              <div key={child.id}>
+                {child.name}
+              </div>
+            ))}
             <br />
             <button>Edit Chore</button>
           </div>

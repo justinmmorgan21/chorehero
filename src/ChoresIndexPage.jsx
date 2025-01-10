@@ -1,8 +1,32 @@
 import { useLoaderData } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { ChoresIndex } from "./components/ChoresIndex";
+import { ChoreCreate } from "./components/ChoreCreate";
+import { Modal } from "./components/Modal";
 
 export function ChoresIndexPage() {
   const chores = useLoaderData();
+
+  const [currentParent, setCurrentParent] = useState({});
+  const getParent = () => {
+    axios.get("http://localhost:3000/parents/current.json").then(response => {
+      setCurrentParent(response.data);
+    })
+  }
+  useEffect(getParent, []);
+
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+
+  // const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
+  // const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
+  // const [choreEditModalVisible, setChoreEditModalVisible] = useState(false);
+  // const [currentChild, setCurrentChild] = useState(null);
+  // const [currentChore, setCurrentChore] = useState(null);
+
+  const handleCreateClose = () => {
+    setCreateModalVisible(false);
+  }
 
   return (
     <div>
@@ -14,7 +38,7 @@ export function ChoresIndexPage() {
       </div>
       <ChoresIndex chores={chores} />
       <Modal onClose={handleCreateClose} show={createModalVisible}>
-        <ChildrenCreate onCreate={handleCreate} onClose={handleCreateClose}/>
+        <ChoreCreate onClose={handleCreateClose} currentParent={currentParent}/>
       </Modal>
     </div>
   );

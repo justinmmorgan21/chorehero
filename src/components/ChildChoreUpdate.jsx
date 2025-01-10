@@ -50,9 +50,28 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
     }
     params.append("title", chore.title);
     if (countOtherChildren() == 0 || countOtherChildren() == checkedChildCount) {  // if no other children sharing the chore  OR  if all selected, edit that chore
-      axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
-        onClose();
-        navigate(`/children`);
+      // if current params match an existing Chore, change ChildChore of THIS Child to the other matching Chore, and delete the current Chore
+      axios.get(`http://localhost:3000/chores.json`).then((response) => {
+        const chores = response.data;
+        let matches = true;
+        chores.map( chore => {
+          if (chore.title != params.get("title")) matches = false;        
+          if (chore.description != params.get("description")) matches = false;        
+          days.forEach( day => {                
+            if (chore[day] != (params.get(day) === "on" ? true : false)) matches = false;          
+          })
+          if (chore.one_timer != params.get("one_timer") === "on" ? true : false) matches = false;        
+          if (chore.points_awarded != params.get("points_awarded")) matches = false;        
+        })
+        if (matches) {
+          console.log("match");
+        } else {
+          console.log("no match");
+          axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
+            onClose();
+            navigate(`/children`);
+          })
+        }
       })
     }
     else {   // if other children share the chore but none or not all are selected, first make new chore with new values and change childchore for THIS child to use new chore_id

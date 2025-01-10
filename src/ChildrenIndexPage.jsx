@@ -1,6 +1,5 @@
 import { useLoaderData } from "react-router-dom";
 import { useState } from "react"
-import axios from "axios";
 import { ChildrenIndex } from "./components/ChildrenIndex";
 import { Modal } from "./components/Modal";
 import { ChildrenCreate } from "./components/ChildrenCreate";
@@ -17,13 +16,6 @@ export function ChildrenIndexPage() {
   const [choreEditModalVisible, setChoreEditModalVisible] = useState(false);
   const [currentChild, setCurrentChild] = useState(null);
   const [currentChore, setCurrentChore] = useState(null);
-
-  const handleCreate = (params, successCallback) => {
-    axios.post("http://localhost:3000/children.json", params).then(
-      response => console.log(response.data)
-    )
-    successCallback();
-  }
 
   const handleCreateClose = () => {
     setCreateModalVisible(false);
@@ -62,7 +54,7 @@ export function ChildrenIndexPage() {
       </div>
       <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView}/>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
-        <ChildrenCreate onCreate={handleCreate} onClose={handleCreateClose}/>
+        <ChildrenCreate onClose={handleCreateClose}/>
       </Modal>
       <Modal onClose={handleModifyClose} show={modifyListModalVisible}>
         <ChildChoresListModify child={currentChild} onClose={handleModifyClose} onUpdate={handleChoreUpdate}/>
