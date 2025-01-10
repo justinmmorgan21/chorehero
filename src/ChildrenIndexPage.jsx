@@ -10,6 +10,7 @@ import { ChildChoreUpdate } from "./components/ChildChoreUpdate";
 
 export function ChildrenIndexPage() {
   const childrenData = useLoaderData();
+
   const navigate = useNavigate();
 
   const handleShow = (child) => {
@@ -30,6 +31,7 @@ export function ChildrenIndexPage() {
       // setProducts([...products, response.data])
     )
     successCallback();
+
   }
 
   // const handleUpdate = (params, id, successCallback) => {
@@ -83,13 +85,12 @@ export function ChildrenIndexPage() {
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
         <h1>All children</h1>
         <div>
-          <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'6px 8px', border:'1px solid black', borderRadius:'8px', boxShadow:'1px 1px', background:'gray', color:'white'}}>+ add child</button>
+        <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
         </div>
       </div>
       <ChildrenIndex children_data={childrenData} onShow={handleShow} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView}/>
-      <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
-        <ChildrenCreate onCreate={handleCreate} />
+        <ChildrenCreate onCreate={handleCreate} onClose={handleCreateClose}/>
       </Modal>
       <Modal onClose={handleModifyClose} show={modifyListModalVisible}>
         <ChildChoresListModify child={currentChild} onClose={handleModifyClose} onUpdate={handleChoreUpdate}/>

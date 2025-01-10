@@ -1,9 +1,18 @@
-export function ChildrenCreate( { onCreate } ) {
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+export function ChildrenCreate( { onClose } ) {
+
+  const navigate = useNavigate();
 
   const handleSubmit = event => {
     event.preventDefault();
     const params = new FormData(event.target);
-    onCreate(params, () => event.target.reset());
+    axios.post("http://localhost:3000/children.json", params).then(
+      response => console.log(response.data)
+    )
+    onClose();
+    navigate('/children');
   }
 
   return (

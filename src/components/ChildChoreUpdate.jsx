@@ -55,27 +55,38 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
         navigate(`/children`);
       })
     }
-    else {   // if other children share the chore
-      if (checkedChildCount == 0) { // if none checked, make new chore with new values and change childchore for THIS child to new chore_id
-        axios.post(`http://localhost:3000/chores.json`, params).then((response) => {
-          const params = new FormData();
-          params.append("new_chore_id", response.data.id);
-          axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(() => {
+    else {   // if other children share the chore but none or not all are selected, first make new chore with new values and change childchore for THIS child to use new chore_id
+      axios.post(`http://localhost:3000/chores.json`, params).then((response) => {
+        const params = new FormData();
+        params.append("new_chore_id", response.data.id);
+        axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(() => {
+          if (checkedChildCount == 0) {
             onClose();
             navigate(`/children`);
-          })
+          }
         })
-      } 
-      // else if () { // if 1 to less than all selected, make new chore, and change childchore for EACH child selected to new chore_id
-      
-      // }
+        if (checkedChildCount != 0) { // if 1 to less than all selected, change childchore for EACH child selected to new chore_id
+          Object.keys(isChildChecked).forEach( (childId, i) => {
+            if (isChildChecked[childId]) {
+              axios.patch(`http://localhost:3000/child_chores/${childId}/${chore.id}.json`, params).then(() => {
+                if (i == isChildChecked.length) {
+                  onClose();
+                  navigate(`/children`);
+                }
+              });
+            }
+          })
+          
+        }
+      })
     }
   }
 
   const countOtherChildren = () => {
     let count = 0;
     chore.children.map((oneChild) => {
-      if (oneChild.id !== child.id) count++;
+      if (oneChild.id !== child.id && chore.child_chores.find(child_chore => child_chore.child_id === oneChild.id).active) 
+        count++;
     })
     return count;
   }
@@ -104,7 +115,7 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
             <div>Also modify this chore for: </div>
             {chore.children.map((oneChild) => (
               <div key={oneChild.id}>
-                {oneChild.id !== child.id ? <div><input type="checkbox" name={oneChild.id} value={isChildChecked[oneChild.id]} onChange={()=>{
+                {oneChild.id !== child.id && chore.child_chores.find(child_chore => child_chore.child_id === oneChild.id).active ? <div><input type="checkbox" name={oneChild.id} value={isChildChecked[oneChild.id]} onChange={()=>{
                   setIsChildChecked((prevStates)=>({...prevStates, [oneChild.id]: !isChildChecked[oneChild.id]}));
                   setCheckedChildCount(checkedChildCount + !isChildChecked[oneChild.id] ? 1 : -1);
                 }}/> {oneChild.name}</div> : null}

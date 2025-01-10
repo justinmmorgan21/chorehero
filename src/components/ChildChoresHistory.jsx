@@ -26,8 +26,7 @@ export function ChildChoresHistory( { child, onClose } ) {
     const params = new FormData();
     params.append("active", true);
     params.append("date_activated", new Date());
-    axios.patch(`http://localhost:3000/child_chores/${child.id}/${choreId}.json`, params).then( (response) => {
-      console.log(response.data);
+    axios.patch(`http://localhost:3000/child_chores/${child.id}/${choreId}.json`, params).then( () => {
       onClose();
       navigate(`/children`);
     })
