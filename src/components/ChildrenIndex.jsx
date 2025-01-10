@@ -112,6 +112,22 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       );
     });
   };
+
+  const clearFields = (child) => {
+    child.chores.forEach( (chore, i) => {
+      const params = new FormData();
+      days.forEach( (day) => {
+        params.append(`done_${day.slice(0,3)}`, false);
+      })
+      axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then( () => {
+        if (i == child.chores.length - 1) {
+          axios.get("http://localhost:3000/children.json").then((response) => {
+            setChildrenData(response.data);
+          });
+        }
+      })
+    })
+  }
   
   return (
     <div>
@@ -129,7 +145,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
         <br />
         <div style={{ display:"flex", flexDirection:"row", boxShadow:'2px 2px 2px gray' }}>
           {days.map( day => (
-          <div key={day} style={{ display:'flex', flexDirection:'column', alignItems:'center'}}>
+          <div key={day} id="day" style={{ display:'flex', flexDirection:'column', alignItems:'center'}}>
             <h4 style={{ textAlign:'center' }}>{day.split("_")[0].slice(0,1).toUpperCase() + day.split("_")[0].slice(1)}</h4>
             <div>
               {child[day].map( chore => (
@@ -141,8 +157,8 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
             <p style={{ color: 'green', fontWeight:'bold', marginTop:'12px'}}>{child[day].length > 0 ? (dayStates[child.id]?.[day] ? "COMPLETED" : "") : ""}</p>
           </div>
           ))}
-          <div>
-            <h3 style={{marginBottom: '12px'}}>Weekly Chores</h3>
+          <div id="day">
+            <h3 style={{marginBottom: '12px'}}>Finished Chores</h3>
             <div style={{ display:'flex', flexDirection:'column' }}>
               <div style={{ display:'flex', flexDirection:'row', justifyContent:'space-between', marginBottom:'6px', textDecoration: 'underline'}}>
                 <div>Chore</div>
@@ -162,7 +178,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
                 <p style={{  }}>total points: {totalPoints(child)}</p>
               </div>
-              <button style={{alignSelf:'end'}} onClick={() => addPoints(child)}>Approve</button>
+              <button style={{alignSelf:'end'}} onClick={() => {addPoints(child); clearFields(child);}}>Approve</button>
             </div>
           </div>
           <br />

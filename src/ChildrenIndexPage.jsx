@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import { useState } from "react"
 import axios from "axios";
 import { ChildrenIndex } from "./components/ChildrenIndex";
@@ -11,13 +11,6 @@ import { ChildChoreUpdate } from "./components/ChildChoreUpdate";
 export function ChildrenIndexPage() {
   const childrenData = useLoaderData();
 
-  const navigate = useNavigate();
-
-  const handleShow = (child) => {
-    console.log("handleShow", child);
-    navigate(`/children/${child.id}`);
-  };
-
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
   const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
@@ -28,27 +21,9 @@ export function ChildrenIndexPage() {
   const handleCreate = (params, successCallback) => {
     axios.post("http://localhost:3000/children.json", params).then(
       response => console.log(response.data)
-      // setProducts([...products, response.data])
     )
     successCallback();
-
   }
-
-  // const handleUpdate = (params, id, successCallback) => {
-
-  //   axios.patch(`http://localhost:3000/products/${id}.json`, params).then(
-  //     response => setProducts(products.map(product => product.id === id ? response.data : product))
-  //   )
-  //   successCallback();
-  //   handleClose();
-  // }
-
-  // const handleDestroy = (id) => {
-  //   console.log("destroy: " + id);
-  //   axios.delete(`http://localhost:3000/products/${id}.json`).then( 
-  //     response => setProducts(products.filter(product => product.id !== id))
-  //   )
-  // }
 
   const handleCreateClose = () => {
     setCreateModalVisible(false);
@@ -67,18 +42,15 @@ export function ChildrenIndexPage() {
     setCurrentChild(child);
     setModifyModalListVisible(true);
   }
-
   const handleChildChoresHistoryView = (child) => {
     setCurrentChild(child);
     setChoreHistoryModalVisible(true);
   }
-
   const handleChoreUpdate = (child, chore) => {
     setChoreEditModalVisible(true);
     setCurrentChild(child);
     setCurrentChore(chore);
   }
-
 
   return (
     <div>
@@ -88,7 +60,7 @@ export function ChildrenIndexPage() {
         <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
         </div>
       </div>
-      <ChildrenIndex children_data={childrenData} onShow={handleShow} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView}/>
+      <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView}/>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <ChildrenCreate onCreate={handleCreate} onClose={handleCreateClose}/>
       </Modal>
