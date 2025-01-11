@@ -1,6 +1,6 @@
 import { FaCheck } from "react-icons/fa";
 
-export function ChoresIndex( { chores } ) {
+export function ChoresIndex( { chores, onEdit } ) {
 
   const days = [
     "monday",
@@ -26,7 +26,6 @@ export function ChoresIndex( { chores } ) {
                 (chore[day] ? 
                   <div key={day} style={{display:"flex", flexDirection:"row", marginRight:"12px"}}>
                     <FaCheck style={{marginRight:"3px"}}/><div>{day}</div>
-                    {/* <input type="checkbox" checked={chore[day]} style={{margin:"8px 2px 8px 8px"}}/>{day} */}
                   </div>
                   : null
                 )
@@ -37,11 +36,18 @@ export function ChoresIndex( { chores } ) {
             Assigned to:
             {chore.children.map( child => (
               <div key={child.id}>
-                {child.name}
+                { child.active_chores.find(oneChore => oneChore.id === chore.id) ? child.name : null }
               </div>
             ))}
             <br />
-            <button>Edit Chore</button>
+            Inactive for:
+            {chore.children.map( child => (
+              <div key={child.id}>
+                { !child.active_chores.find(oneChore => oneChore.id === chore.id) ? child.name : null }
+              </div>
+            ))}
+            <br />
+            <button onClick={() => onEdit(chore)}>Edit Chore</button>
           </div>
         ))}
       </div>

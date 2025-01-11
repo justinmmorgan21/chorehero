@@ -2,7 +2,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export function ChoreCreate( { onClose, currentParent } ) {
-  // console.log("parent: ", currentParent);
   const navigate = useNavigate();
 
   const days = [

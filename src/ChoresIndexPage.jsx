@@ -4,9 +4,12 @@ import axios from "axios";
 import { ChoresIndex } from "./components/ChoresIndex";
 import { ChoreCreate } from "./components/ChoreCreate";
 import { Modal } from "./components/Modal";
+import { ChoreEdit } from "./components/ChoreEdit";
 
 export function ChoresIndexPage() {
   const chores = useLoaderData();
+
+  const [currentChore, setCurrentChore] = useState(null);
 
   const [currentParent, setCurrentParent] = useState({});
   const getParent = () => {
@@ -17,6 +20,7 @@ export function ChoresIndexPage() {
   useEffect(getParent, []);
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   // const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
   // const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
@@ -27,6 +31,14 @@ export function ChoresIndexPage() {
   const handleCreateClose = () => {
     setCreateModalVisible(false);
   }
+  const handleEditClose = () => {
+    setEditModalVisible(false);
+  }
+
+  const handleChoreEdit = (chore) => {
+    setEditModalVisible(true);
+    setCurrentChore(chore);
+  }
 
   return (
     <div>
@@ -36,9 +48,12 @@ export function ChoresIndexPage() {
           <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add chore</button>
         </div>
       </div>
-      <ChoresIndex chores={chores} />
+      <ChoresIndex chores={chores} onEdit={handleChoreEdit} />
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <ChoreCreate onClose={handleCreateClose} currentParent={currentParent}/>
+      </Modal>
+      <Modal onClose={handleEditClose} show={editModalVisible}>
+        <ChoreEdit onClose={handleEditClose} currentParent={currentParent} chore={currentChore}/>
       </Modal>
     </div>
   );
