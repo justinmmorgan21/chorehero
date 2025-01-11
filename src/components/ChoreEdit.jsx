@@ -42,25 +42,43 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
 
   const handleSubmit = event => {
     event.preventDefault();
-  //   const params = new FormData(event.target);
-  //   days.forEach( day => {
-  //     if (!params.has(day)) {
-  //       params.append(day, false);
-  //     }
-  //   })
-  //   if (!params.has("one_timer")) {
-  //     params.append("one_timer", false);
-  //   }
-  //   params.append("title", chore.title);
+    const params = new FormData(event.target);
+    days.forEach( day => {
+      if (!params.has(day)) {
+        params.append(day, false);
+      }
+    })
+    if (!params.has("one_timer")) {
+      params.append("one_timer", false);
+    }
+    params.append("title", chore.title);
 
-  // // cases:
-  // // no change to chore but add new child check: add child_chore
-  // // no change to chore but remove child check: update child_chore - active to false and set date_inactivated (will send chore to history)
-  // // no change to child checks but changes to chore: update chore
-  // // changes to chore and add new child check: update chore, add child_chore
-  // // changes to chore and remove child check: update chore, update child_chore
-
-  // // perform update chore, followed by add child_chores and update child_chores
+    axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
+      currentParent.children.map( (oneChild, i) => {
+        if (chore.children.find(child => child.id === oneChild.id) && !isChildChecked[oneChild.id]) {
+          params.append("active", false);
+          params.append("date_inactivated", new Date());
+          axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(()=> {
+            if (currentParent.children.length - i == i){
+              onClose();
+              navigate(`/chores`);
+            }
+          })       
+        } else if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
+          params.append("child_id", oneChild.id);
+          params.append("chore_id", chore.id);
+          axios.post(`http://localhost:3000/child_chores.json`, params).then(()=> {
+            if (currentParent.children.length - i == i){
+              onClose();
+              navigate(`/chores`);
+            }
+          })
+        } else if (currentParent.children.length - i == i){
+          onClose();
+          navigate(`/chores`);
+        }
+      })
+    })
 
 
   //   if (countOtherChildren() == 0 || countOtherChildren() == checkedChildCount) {  // if no other children sharing the chore  OR  if all selected, edit that chore
@@ -154,8 +172,8 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
         <div style={{display:"flex", flexDirection:"row", marginTop:"4px"}}>
           {currentParent.children.map( child => (
           <div key={child.id} style={{marginRight:"12px"}}>
-            <input type="checkbox" name={child.id} checked={isChildChecked[child.id]} value={isChildChecked[child.id]} onChange={()=>{
-              setIsChildChecked((prevStates)=>({...prevStates, [child.id]: !isChildChecked[child.id]}));
+            <input type="checkbox" name={child.id} checked={isChildChecked[child.id] || false} onChange={()=>{
+              setIsChildChecked((prevStates)=>({...prevStates, [child.id]: !prevStates[child.id]}));
             }} /> {child.name}
           </div>
           ))}

@@ -19,8 +19,10 @@ export function ChoresIndex( { chores, onEdit } ) {
       <div className="cards">
         { chores.map( chore => (
           <div key={chore.id} className="card">
-            <h3 style={{marginBottom:"8px"}}>{chore.title}</h3>
+            <h2 style={{marginBottom:"8px"}}>{chore.title}</h2>
+            <br />
             <p>description: {chore.description || "-"}</p>
+            <br />
             <div style={{display:"flex", flexDirection:"row", margin:"8px 2px 8px 8px"}}>
               {days.map( day => (
                 (chore[day] ? 
@@ -31,20 +33,29 @@ export function ChoresIndex( { chores, onEdit } ) {
                 )
               ))}
             </div>
+            <br />
+            {chore.one_timer ?
+            <div>
+              <p>*one-timer (chore to be done once on any assigned day)</p>
+              <br />
+            </div>
+              :
+            null
+            }
             <div>points: {chore.points_awarded}</div>
             <br />
             Assigned to:
             {chore.children.map( child => (
-              <div key={child.id}>
-                { child.active_chores.find(oneChore => oneChore.id === chore.id) ? child.name : null }
-              </div>
+              <ul key={child.id}>
+                { child.active_chores.find(oneChore => oneChore.id === chore.id) ? <li>{child.name}</li> : null }
+              </ul>
             ))}
             <br />
             Inactive for:
             {chore.children.map( child => (
-              <div key={child.id}>
-                { !child.active_chores.find(oneChore => oneChore.id === chore.id) ? child.name : null }
-              </div>
+              <ul key={child.id}>
+                { !child.active_chores.find(oneChore => oneChore.id === chore.id) ? <li>{child.name}</li> : null }
+              </ul>
             ))}
             <br />
             <button onClick={() => onEdit(chore)}>Edit Chore</button>
