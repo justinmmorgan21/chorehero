@@ -53,20 +53,29 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
       // if current params match an existing Chore, change ChildChore of THIS Child to the other matching Chore, and delete the current Chore
       axios.get(`http://localhost:3000/chores.json`).then((response) => {
         const chores = response.data;
-        let matches = true;
-        chores.map( chore => {
-          if (chore.title != params.get("title")) matches = false;        
-          if (chore.description != params.get("description")) matches = false;        
-          days.forEach( day => {                
-            if (chore[day] != (params.get(day) === "on" ? true : false)) matches = false;          
+        let matchesAny = false;
+        chores.map( oneChore => {
+          let matches = true;
+          if (oneChore.title != params.get("title")) matches = false;
+          if (oneChore.description != params.get("description")) matches = false;
+          days.forEach( day => {   
+            if ((oneChore[day] != null && oneChore[day] != (params.get(day) === "on" ? true : false)) || (oneChore[day] == null && params.get(day) != "false")) {
+              matches = false;
+            }
           })
-          if (chore.one_timer != params.get("one_timer") === "on" ? true : false) matches = false;        
-          if (chore.points_awarded != params.get("points_awarded")) matches = false;        
+          if (oneChore.one_timer != params.get("one_timer") === "on" ? true : false) matches = false;        
+          if (oneChore.points_awarded != params.get("points_awarded")) matches = false;
+          if (matches) {
+            matchesAny = true;
+            params.append("new_chore_id", oneChore.id);
+            axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(()=>{
+              axios.delete(`http://localhost:3000/chores/${chore.id}.json`);
+              onClose();
+              navigate(`/children`);
+            })
+          }    
         })
-        if (matches) {
-          console.log("match");
-        } else {
-          console.log("no match");
+        if (!matchesAny) {
           axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
             onClose();
             navigate(`/children`);

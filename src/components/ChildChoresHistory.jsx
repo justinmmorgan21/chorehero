@@ -60,7 +60,6 @@ export function ChildChoresHistory( { child, onClose } ) {
       {child.inactive_chores.map( chore => (
         <div key={chore.id} >
           <div style={{ display:'flex', flexDirection:'row', gap:'6px'}}>
-            <button >Edit</button>
             <button onClick={() => handleReactivate(chore.id)}>Reactivate</button>
             <div style={{fontWeight:'bold', marginLeft:'6px'}}> {chore.title} </div> ,
             {days.map( day => ( 
