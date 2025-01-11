@@ -9,7 +9,6 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
   const [isChildChecked, setIsChildChecked] = useState({});
   const [description, setDescription] = useState(chore.description);
   const [points, setPoints] = useState(chore.points_awarded);
-  const [checkedChildCount, setCheckedChildCount] = useState(0);
 
   const days = [
     "monday",
@@ -40,9 +39,8 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
 
   const navigate = useNavigate();
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    const params = new FormData(event.target);
+  const initializeParams = event => {
+    let params = new FormData(event.target);
     days.forEach( day => {
       if (!params.has(day)) {
         params.append(day, false);
@@ -52,104 +50,114 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
       params.append("one_timer", false);
     }
     params.append("title", chore.title);
+    return params;
+  }
 
-    axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
-      currentParent.children.map( (oneChild, i) => {
-        if (chore.children.find(child => child.id === oneChild.id) && !isChildChecked[oneChild.id]) {
-          params.append("active", false);
-          params.append("date_inactivated", new Date());
-          axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(()=> {
-            if (currentParent.children.length - i == i){
+  const handleSubmit = event => {
+    event.preventDefault();
+    let params = initializeParams(event);
+
+    axios.get(`http://localhost:3000/chores.json`).then((response) => {
+      const chores = response.data;
+      let matchesAny = false;
+      chores.map( oneChore => {
+        let matches = true;
+        if (oneChore.id == chore.id) matches = false;
+        if (oneChore.title != params.get("title")) matches = false;
+        if (oneChore.description != params.get("description")) matches = false;
+        days.forEach( day => {
+          if ((oneChore[day] != null && oneChore[day] != (params.get(day) === "on" ? true : false)) || (oneChore[day] == null && params.get(day) != "false")) {
+            matches = false;
+          }
+        })
+        if (oneChore.one_timer != (params.get("one_timer") === "on" ? true : false)) matches = false;        
+        if (oneChore.points_awarded != params.get("points_awarded")) matches = false;
+        if (matches) {
+          matchesAny = true;
+          // if all checked children stay checked - change child_chores to other chore for each and delete chore
+          // otherwise...
+          // // if was not checked is now checked: make new child_chore for other chore
+                // if ONLY no checked to checked, delete chore
+          // // if was checked and is now not checked: deactivate child_chore for THAT Child
+
+          // while looping through each parent's child:  also track if any go from checked to not checked, then switch boolean
+          let checkedToUnchecked = false;
+          currentParent.children.forEach( (oneChild, i) => {
+            params = initializeParams(event);
+            // checked to checked -> update child_chore (new chore_id)
+            if (chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
+              params.append("new_chore_id", oneChore.id);
+              axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(() => {
+                if (currentParent.children.length - 1 === i && checkedToUnchecked) {
+                  onClose();
+                  navigate(`/chores`);
+                }
+              })
+            }
+            // unchecked to checked -> create child_chore (using child_id, chore_id)
+            else if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
+              params.append("chore_id", oneChore.id);
+              params.append("child_id", oneChild.id);
+              axios.post(`http://localhost:3000/child_chores.json`, params).then(() => {
+                if (currentParent.children.length - 1 === i && checkedToUnchecked) {
+                  onClose();
+                  navigate(`/chores`);
+                }
+              })
+            }
+            // checked to unchecked -> update child_chore (active:false, date_inactivated)
+            else if (chore.children.find(child => child.id === oneChild.id) && !isChildChecked[oneChild.id]) {
+              checkedToUnchecked = true;
+              params.append("active", false);
+              params.append("date_inactivated", new Date());
+              axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(() => {
+                if (currentParent.children.length - 1 === i) {
+                  onClose();
+                  navigate(`/chores`);
+                }
+              })
+            }
+          })
+          // if boolean says no checked to unchecked, delete old chore
+          if (!checkedToUnchecked) {
+            axios.delete(`http://localhost:3000/chores/${chore.id}.json`).then(() => {
               onClose();
               navigate(`/chores`);
-            }
-          })       
-        } else if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
-          params.append("child_id", oneChild.id);
-          params.append("chore_id", chore.id);
-          axios.post(`http://localhost:3000/child_chores.json`, params).then(()=> {
-            if (currentParent.children.length - i == i){
+            })
+          }
+        }
+      })
+      if (!matchesAny) {
+        axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
+          currentParent.children.map( (oneChild, i) => {
+            if (chore.children.find(child => child.id === oneChild.id) && !isChildChecked[oneChild.id]) {  // checked to unchecked
+              params.append("active", false);
+              params.append("date_inactivated", new Date());
+              axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(()=> {
+                if (currentParent.children.length - 1 == i){
+                  onClose();
+                  navigate(`/chores`);
+                }
+              })       
+            } else if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
+              params.append("child_id", oneChild.id);
+              params.append("chore_id", chore.id);
+              axios.post(`http://localhost:3000/child_chores.json`, params).then(()=> {
+                if (currentParent.children.length - 1 == i){
+                  onClose();
+                  navigate(`/chores`);
+                }
+              })
+            } else if (currentParent.children.length - 1 == i){
               onClose();
               navigate(`/chores`);
             }
           })
-        } else if (currentParent.children.length - i == i){
-          onClose();
-          navigate(`/chores`);
-        }
-      })
+        })
+      }
     })
-
-
-  //   if (countOtherChildren() == 0 || countOtherChildren() == checkedChildCount) {  // if no other children sharing the chore  OR  if all selected, edit that chore
-  //     // if current params match an existing Chore, change ChildChore of THIS Child to the other matching Chore, and delete the current Chore
-  //     axios.get(`http://localhost:3000/chores.json`).then((response) => {
-  //       const chores = response.data;
-  //       let matchesAny = false;
-  //       chores.map( oneChore => {
-  //         let matches = true;
-  //         if (oneChore.title != params.get("title")) matches = false;
-  //         if (oneChore.description != params.get("description")) matches = false;
-  //         days.forEach( day => {   
-  //           if ((oneChore[day] != null && oneChore[day] != (params.get(day) === "on" ? true : false)) || (oneChore[day] == null && params.get(day) != "false")) {
-  //             matches = false;
-  //           }
-  //         })
-  //         if (oneChore.one_timer != params.get("one_timer") === "on" ? true : false) matches = false;        
-  //         if (oneChore.points_awarded != params.get("points_awarded")) matches = false;
-  //         if (matches) {
-  //           matchesAny = true;
-  //           params.append("new_chore_id", oneChore.id);
-  //           axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(()=>{
-  //             axios.delete(`http://localhost:3000/chores/${chore.id}.json`);
-  //             onClose();
-  //             navigate(`/chore`);
-  //           })
-  //         }    
-  //       })
-  //       if (!matchesAny) {
-  //         axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
-  //           onClose();
-  //           navigate(`/chore`);
-  //         })
-  //       }
-  //     })
-  //   }
-  //   else {   // if other children share the chore but none or not all are selected, first make new chore with new values and change childchore for THIS child to use new chore_id
-  //     axios.post(`http://localhost:3000/chores.json`, params).then((response) => {
-  //       const params = new FormData();
-  //       params.append("new_chore_id", response.data.id);
-  //       axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(() => {
-  //         if (checkedChildCount == 0) {
-  //           onClose();
-  //           navigate(`/chore`);
-  //         }
-  //       })
-  //       if (checkedChildCount != 0) { // if 1 to less than all selected, change childchore for EACH child selected to new chore_id
-  //         Object.keys(isChildChecked).forEach( (childId, i) => {
-  //           if (isChildChecked[childId]) {
-  //             axios.patch(`http://localhost:3000/child_chores/${childId}/${chore.id}.json`, params).then(() => {
-  //               if (i == isChildChecked.length) {
-  //                 onClose();
-  //                 navigate(`/chore`);
-  //               }
-  //             });
-  //           }
-  //         })
-          
-  //       }
-  //     })
-  //   }
   }
 
-  const countOtherChildren = () => {
-    let count = 0;
-    // chore.children.map((oneChild) => {
-    //   if (oneChild.id !== child.id && chore.child_chores.find(child_chore => child_chore.child_id === oneChild.id).active) 
-    //     count++;
-    // })
-    return count;
-  }
 
   return (
     <div>

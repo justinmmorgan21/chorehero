@@ -49,6 +49,7 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
       params.append("one_timer", false);
     }
     params.append("title", chore.title);
+
     if (countOtherChildren() == 0 || countOtherChildren() == checkedChildCount) {  // if no other children sharing the chore  OR  if all selected, edit that chore
       // if current params match an existing Chore, change ChildChore of THIS Child to the other matching Chore, and delete the current Chore
       axios.get(`http://localhost:3000/chores.json`).then((response) => {
@@ -97,14 +98,13 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
           Object.keys(isChildChecked).forEach( (childId, i) => {
             if (isChildChecked[childId]) {
               axios.patch(`http://localhost:3000/child_chores/${childId}/${chore.id}.json`, params).then(() => {
-                if (i == isChildChecked.length) {
+                if (i === (Object.keys(isChildChecked).length - 1)) {
                   onClose();
                   navigate(`/children`);
                 }
               });
             }
           })
-          
         }
       })
     }
@@ -145,8 +145,8 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
               <div key={oneChild.id}>
                 {oneChild.id !== child.id && chore.child_chores.find(child_chore => child_chore.child_id === oneChild.id).active ? <div><input type="checkbox" name={oneChild.id} value={isChildChecked[oneChild.id]} onChange={()=>{
                   setIsChildChecked((prevStates)=>({...prevStates, [oneChild.id]: !isChildChecked[oneChild.id]}));
-                  setCheckedChildCount(checkedChildCount + !isChildChecked[oneChild.id] ? 1 : -1);
-                }}/> {oneChild.name}</div> : null}
+                  setCheckedChildCount(checkedChildCount + (!isChildChecked[oneChild.id] ? 1 : -1));
+                  }}/> {oneChild.name}</div> : null}
               </div>
             ))}
             <br />

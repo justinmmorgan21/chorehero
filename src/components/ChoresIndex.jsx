@@ -14,7 +14,6 @@ export function ChoresIndex( { chores, onEdit } ) {
 
   return (
     <div>
-      
       <br />
       <div className="cards">
         { chores.map( chore => (

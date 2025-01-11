@@ -8,11 +8,11 @@ export function ChildrenCreate( { onClose } ) {
   const handleSubmit = event => {
     event.preventDefault();
     const params = new FormData(event.target);
-    axios.post("http://localhost:3000/children.json", params).then(
-      response => console.log(response.data)
+    axios.post("http://localhost:3000/children.json", params).then(() => {
+        onClose();
+        navigate('/children');
+      }
     )
-    onClose();
-    navigate('/children');
   }
 
   return (
