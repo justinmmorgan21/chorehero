@@ -7,7 +7,8 @@ import { RewardsIndex } from "./components/RewardsIndex";
 
 export function RewardsIndexPage() {
   const rewards = useLoaderData();
-
+  console.log(rewards);
+  console.log(rewards.reward_groups);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   // const [editModalVisible, setEditModalVisible] = useState(false);
 
@@ -37,7 +38,30 @@ export function RewardsIndexPage() {
           <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add reward</button>
         </div>
       </div>
-      <RewardsIndex rewards={rewards} onEdit={handleRewardEdit} />
+      <div style={{display:"flex", flexDirection:"row", gap:"100px"}}>
+        <RewardsIndex rewardsData={rewards} onEdit={handleRewardEdit} />
+        <div style={{border:"1px solid black", padding:"40px", marginTop:"16px", boxShadow:"2px 2px 2px gray", height:"fit-content"}}>
+          <div>
+            <h2>Reward-Points Chart:</h2>
+            <br />
+            {Object.keys(rewards.reward_groups).map(score => (
+              <div key={score}>
+                <p style={{fontWeight:"bold", fontSize:"1.1em"}}>{score} points</p>
+                <hr />
+                <div>
+                {rewards.reward_groups[score].map(reward => (
+                  <p key={reward.id} style={{margin:"3px 2px 2px 8px"}}>
+                    {reward.title}
+                  </p>
+                ))}
+                </div>
+                <br />
+                <br />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <RewardCreate onClose={handleCreateClose} />
       </Modal>
