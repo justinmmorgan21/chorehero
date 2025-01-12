@@ -183,6 +183,9 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
           </div>
           <br />
         </div>
+        <div>
+          {/* REWARDS */}
+        </div>
       </div>
       ))}
     </div>

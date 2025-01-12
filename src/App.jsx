@@ -7,6 +7,7 @@ import { ParentSignupPage } from "./ParentSignupPage";
 import { LoginPage } from "./LoginPage";
 import { ChildrenIndexPage } from "./ChildrenIndexPage";
 import { ChoresIndexPage } from "./ChoresIndexPage";
+import { RewardsIndexPage } from "./RewardsIndexPage";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,11 @@ const router = createBrowserRouter([
         path: "/chores",
         element: <ChoresIndexPage />,
         loader: () => axios.get("http://localhost:3000/chores.json").then( response => response.data )
+      },
+      {
+        path: "/rewards",
+        element: <RewardsIndexPage />,
+        loader: () => axios.get("http://localhost:3000/rewards.json").then( response => response.data )
       },
     ],
   },

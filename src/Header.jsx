@@ -34,7 +34,7 @@ export function Header() {
   return (
     <header style={{ position: 'fixed', top: 0, width: '100%', backgroundColor: 'gray', zIndex: 1 }}>
       <nav>
-        <Link to="/">Home</Link> | <Link to="children">Children</Link>  | <Link to="chores">Chores</Link> | {authLinks} | {welcomeUserMessage}
+        <Link to="/">Home</Link> | <Link to="children">Children</Link>  | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link>| {authLinks} | {welcomeUserMessage}
         
       </nav>
     </header>
