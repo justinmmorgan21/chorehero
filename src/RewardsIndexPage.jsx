@@ -4,30 +4,31 @@ import axios from "axios";
 import { RewardCreate } from "./components/RewardCreate";
 import { Modal } from "./components/Modal";
 import { RewardsIndex } from "./components/RewardsIndex";
+import { RewardUpdate } from "./components/RewardUpdate";
 
 export function RewardsIndexPage() {
   const rewards = useLoaderData();
   console.log(rewards);
   console.log(rewards.reward_groups);
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  // const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   // const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
   // const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
   // const [choreEditModalVisible, setChoreEditModalVisible] = useState(false);
   // const [currentChild, setCurrentChild] = useState(null);
-  // const [currentChore, setCurrentChore] = useState(null);
+  const [currentReward, setCurrentReward] = useState(null);
 
   const handleCreateClose = () => {
     setCreateModalVisible(false);
   }
-  // const handleEditClose = () => {
-  //   setEditModalVisible(false);
-  // }
+  const handleEditClose = () => {
+    setEditModalVisible(false);
+  }
 
   const handleRewardEdit = (reward) => {
-    // setEditModalVisible(true);
-    // setCurrentChore(chore);
+    setEditModalVisible(true);
+    setCurrentReward(reward);
   }
 
   return (
@@ -65,9 +66,9 @@ export function RewardsIndexPage() {
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <RewardCreate onClose={handleCreateClose} />
       </Modal>
-      {/* <Modal onClose={handleEditClose} show={editModalVisible}>
-        <ChoreEdit onClose={handleEditClose} currentParent={currentParent} chore={currentChore}/>
-      </Modal> */}
+      <Modal onClose={handleEditClose} show={editModalVisible}>
+        <RewardUpdate onClose={handleEditClose} reward={currentReward}/>
+      </Modal>
     </div>
   );
 }
