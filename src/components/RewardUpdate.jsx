@@ -20,13 +20,10 @@ export function RewardUpdate( { reward, onClose } ) {
       <h1>Update Reward</h1>
       <br />
       <form onSubmit={handleSubmit}>
-        <label htmlFor="title">Reward: </label><br />
-        <input name="title" type="text" defaultValue={reward.title}/><br />
-        <br />
-        <label htmlFor="points_cost">Points cost: </label>
+        <label htmlFor="points_cost">New Points Cost: </label>
         <input name="points_cost" type="text" size="4" defaultValue={reward.points_cost}/><br />
         <br />
-        <button type="submit">Create</button>
+        <button type="submit">Update</button>
       </form>
     </div>
   );

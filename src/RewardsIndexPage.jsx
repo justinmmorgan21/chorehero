@@ -50,7 +50,7 @@ export function RewardsIndexPage() {
                 <p style={{fontWeight:"bold", fontSize:"1.1em"}}>{score} points</p>
                 <hr />
                 <div>
-                {rewards.reward_groups[score].map(reward => (
+                {rewards.reward_groups[score].filter(reward=>reward.active).map(reward => (
                   <p key={reward.id} style={{margin:"3px 2px 2px 8px"}}>
                     {reward.title}
                   </p>

@@ -1,17 +1,31 @@
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export function RewardsIndex( { rewardsData, onEdit } ) {
   const rewards = rewardsData.rewards;
+  const navigate = useNavigate();
+  const handleDelete = (reward) => {
+    const params = new FormData();
+    params.append("active", false);
+    axios.patch(`http://localhost:3000/rewards/${reward.id}.json`, params).then(() => {
+      navigate('/rewards');
+    })
+  }
+
   return (
     <div>
       <br />
       <div >
-        { rewards.map( reward => (
+        { rewards.filter(reward=>reward.active).map( reward => (
           <div key={reward.id} className="reward" style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"space-between"}} >
             <div style={{border:"0px solid blue", marginRight:"24px"}}>
               <h3 style={{padding:"8px 0", border:"0px solid red"}}>{reward.title}</h3>
               <div>cost: {reward.points_cost} points</div>
             </div>  
-            <button style={{height:"fit-content", padding:"4px 12px"}} onClick={() => onEdit(reward)}>Edit Reward</button>
+            <div>
+              <button style={{height:"fit-content", padding:"4px 12px", marginRight:"3px"}} onClick={() => onEdit(reward)}>Change Points Cost</button>
+              <button style={{height:"fit-content", padding:"4px 12px"}} onClick={() => handleDelete(reward)}>Remove</button>
+            </div>
           </div>
         ))}
       </div>
