@@ -129,30 +129,25 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
       })
       if (!matchesAny) {
         axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
-          currentParent.children.map( (oneChild, i) => {
+          let axiosPromises = currentParent.children.map((oneChild) => {
             if (chore.children.find(child => child.id === oneChild.id) && !isChildChecked[oneChild.id]) {  // checked to unchecked
               params.append("active", false);
               params.append("date_inactivated", new Date());
-              axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(()=> {
-                if (currentParent.children.length - 1 == i){
-                  onClose();
-                  navigate(`/chores`);
-                }
-              })       
-            } else if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
+              return axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params);
+            }
+            if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
               params.append("child_id", oneChild.id);
               params.append("chore_id", chore.id);
-              axios.post(`http://localhost:3000/child_chores.json`, params).then(()=> {
-                if (currentParent.children.length - 1 == i){
-                  onClose();
-                  navigate(`/chores`);
-                }
-              })
-            } else if (currentParent.children.length - 1 == i){
-              onClose();
-              navigate(`/chores`);
-            }
-          })
+              return axios.post(`http://localhost:3000/child_chores.json`, params);
+            }        
+            return Promise.resolve();
+          });
+          Promise.all(axiosPromises).then(() => {
+            onClose();
+            navigate(`/chores`);
+          }).catch((error) => {
+            console.error("Error updating child chores:", error);
+          });
         })
       }
     })

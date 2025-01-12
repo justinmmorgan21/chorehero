@@ -25,8 +25,8 @@ html {
 }
 
 .main {
-  /* width: 50%; */
-  width: fit-content;
+  width: 90%;
+
   margin: 0 auto;
   padding: 60px 0 120px 0;
 }
