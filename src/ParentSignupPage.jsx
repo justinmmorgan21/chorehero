@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-
+import apiConfig from "./apiConfig";
 export function ParentSignupPage() {
   const [errors, setErrors] = useState([]);
 

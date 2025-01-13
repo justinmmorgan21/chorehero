@@ -11,11 +11,6 @@ export function RewardsIndexPage() {
   console.log(rewards.reward_groups);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-
-  // const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
-  // const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
-  // const [choreEditModalVisible, setChoreEditModalVisible] = useState(false);
-  // const [currentChild, setCurrentChild] = useState(null);
   const [currentReward, setCurrentReward] = useState(null);
 
   const handleCreateClose = () => {

@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import axios from "axios";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { HomePage } from "./HomePage";
+import { HomePage } from "./Homepage";
 import { ParentSignupPage } from "./ParentSignupPage";
 import { LoginPage } from "./LoginPage";
 import { ChildrenIndexPage } from "./ChildrenIndexPage";
