@@ -5,7 +5,7 @@ import { ChoresIndex } from "./components/ChoresIndex";
 import { ChoreCreate } from "./components/ChoreCreate";
 import { Modal } from "./components/Modal";
 import { ChoreEdit } from "./components/ChoreEdit";
-import apiConfig from "./ApiConfig";
+import apiConfig from "./apiConfig";
 
 export function ChoresIndexPage() {
   const chores = useLoaderData();

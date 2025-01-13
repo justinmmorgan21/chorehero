@@ -8,7 +8,7 @@ import { LoginPage } from "./LoginPage";
 import { ChildrenIndexPage } from "./ChildrenIndexPage";
 import { ChoresIndexPage } from "./ChoresIndexPage";
 import { RewardsIndexPage } from "./RewardsIndexPage";
-import apiConfig from "./ApiConfig";
+import apiConfig from "./apiConfig";
 
 const router = createBrowserRouter([
   {

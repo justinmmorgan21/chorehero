@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import apiConfig from "../ApiConfig";
+import apiConfig from "../apiConfig";
 
 export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView }) {
 

@@ -3,7 +3,7 @@ import { LogoutLink } from "./LogoutLink";
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Logo from './assets/small logo.png';
-import apiConfig from "./ApiConfig";
+import apiConfig from "./apiConfig";
 
 export function Header() {
   const [currentParent, setCurrentParent] = useState({});

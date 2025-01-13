@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import apiConfig from "./ApiConfig";
+import apiConfig from "./apiConfig";
 
 const jwt = localStorage.getItem("jwt");
 if (jwt) {

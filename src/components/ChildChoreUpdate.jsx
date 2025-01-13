@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import apiConfig from "../ApiConfig";
+import apiConfig from "../apiConfig";
 
 export function ChildChoreUpdate( { child, chore, onClose } ) {
 

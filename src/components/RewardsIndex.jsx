@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import apiConfig from "../ApiConfig";
+import apiConfig from "../apiConfig";
 
 export function RewardsIndex( { rewardsData, onEdit } ) {
   const rewards = rewardsData.rewards;
