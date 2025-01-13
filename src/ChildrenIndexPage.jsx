@@ -47,9 +47,9 @@ export function ChildrenIndexPage() {
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
-        <h1>All children</h1>
+        <h1 style={{color:"white", width:"100%", textAlign:"center"}}>Children</h1>
         <div>
-        <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
+          <button onClick={()=>setCreateModalVisible(true)} style={{ width:"100px", fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
         </div>
       </div>
       <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView}/>

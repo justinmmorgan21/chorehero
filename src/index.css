@@ -2,6 +2,18 @@
   margin: 0;
 }
 
+body {
+  margin: 0;
+  /* overflow: hidden; */
+  background-color: #F0CD0D;
+  color: #385499
+}
+
+#home {
+  margin: 0;
+  overflow: hidden;
+}
+
 h1 {
   padding: 10px;
 }
@@ -26,7 +38,6 @@ html {
 
 .main {
   width: fit-content;
-
   margin: 0 auto;
   padding: 60px 0 120px 0;
 }
@@ -34,7 +45,7 @@ html {
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 40px;
+  gap: 32px;
   margin-bottom: 12px;
 }
 
@@ -52,9 +63,10 @@ html {
 
 .card {
   padding: 8px 8px 16px 8px;
-  border: solid 1px black;
+  border: solid 3px black;
   border-radius: 5px;
   margin-bottom: 20px;
+  background-color: white;
 }
 
 #day {

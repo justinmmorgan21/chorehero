@@ -37,9 +37,9 @@ export function ChoresIndexPage() {
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
-        <h1>All chores</h1>
+        <h1 style={{color:"white", width:"100%", textAlign:"center"}}>Chores</h1>
         <div>
-          <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add chore</button>
+          <button onClick={()=>setCreateModalVisible(true)} style={{ width:"110px", fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add chore</button>
         </div>
       </div>
       <ChoresIndex chores={chores} onEdit={handleChoreEdit} />

@@ -1,6 +1,5 @@
 import { useLoaderData } from "react-router-dom";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { RewardCreate } from "./components/RewardCreate";
 import { Modal } from "./components/Modal";
 import { RewardsIndex } from "./components/RewardsIndex";
@@ -41,7 +40,7 @@ export function RewardsIndexPage() {
       </div>
       <div style={{display:"flex", flexDirection:"row", gap:"100px"}}>
         <RewardsIndex rewardsData={rewards} onEdit={handleRewardEdit} />
-        <div style={{border:"1px solid black", padding:"40px", marginTop:"16px", boxShadow:"2px 2px 2px gray", height:"fit-content"}}>
+        <div style={{border:"1px solid black", padding:"40px", marginTop:"16px", boxShadow:"2px 2px 2px gray", height:"fit-content", backgroundColor:"white"}}>
           <div>
             <h2>Reward-Points Chart:</h2>
             <br />
