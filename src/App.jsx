@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import axios from "axios";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { Homepage } from "./Homepage";
+import { HomePage } from "./HomePage";
 import { ParentSignupPage } from "./ParentSignupPage";
 import { LoginPage } from "./LoginPage";
 import { ChildrenIndexPage } from "./ChildrenIndexPage";
@@ -24,7 +24,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Homepage />,
+        element: <HomePage />,
       },
       {
         path: "/signup",
