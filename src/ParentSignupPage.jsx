@@ -9,7 +9,7 @@ export function ParentSignupPage() {
     setErrors([]);
     const params = new FormData(event.target);
     axios
-      .post("http://localhost:3000/parents.json", params)
+      .post(`${apiConfig.backendBaseUrl}/parents.json`, params)
       .then((response) => {
         console.log(response.data);
         event.target.reset();

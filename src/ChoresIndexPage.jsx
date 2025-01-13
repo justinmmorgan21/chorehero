@@ -5,6 +5,7 @@ import { ChoresIndex } from "./components/ChoresIndex";
 import { ChoreCreate } from "./components/ChoreCreate";
 import { Modal } from "./components/Modal";
 import { ChoreEdit } from "./components/ChoreEdit";
+import apiConfig from "./ApiConfig";
 
 export function ChoresIndexPage() {
   const chores = useLoaderData();
@@ -13,7 +14,7 @@ export function ChoresIndexPage() {
 
   const [currentParent, setCurrentParent] = useState({});
   const getParent = () => {
-    axios.get("http://localhost:3000/parents/current.json").then(response => {
+    axios.get(`${apiConfig.backendBaseUrl}/parents/current.json`).then(response => {
       setCurrentParent(response.data);
     })
   }

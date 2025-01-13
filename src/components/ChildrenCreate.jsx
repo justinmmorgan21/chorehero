@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function ChildrenCreate( { onClose } ) {
 
@@ -8,7 +9,7 @@ export function ChildrenCreate( { onClose } ) {
   const handleSubmit = event => {
     event.preventDefault();
     const params = new FormData(event.target);
-    axios.post("http://localhost:3000/children.json", params).then(() => {
+    axios.post(`${apiConfig.backendBaseUrl}/children.json`, params).then(() => {
         onClose();
         navigate('/children');
       }

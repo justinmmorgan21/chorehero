@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function RewardCreate( { onClose } ) {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export function RewardCreate( { onClose } ) {
     let params = new FormData(event.target);
     
     // make new Chore
-    axios.post("http://localhost:3000/rewards.json", params).then(() => {
+    axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then(() => {
       onClose();
       navigate('/rewards');
     })

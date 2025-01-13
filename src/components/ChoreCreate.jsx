@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function ChoreCreate( { onClose, currentParent } ) {
   const navigate = useNavigate();
@@ -19,14 +20,14 @@ export function ChoreCreate( { onClose, currentParent } ) {
     let params = new FormData(event.target);
     
     // make new Chore
-    axios.post("http://localhost:3000/chores.json", params).then((response) => {
+    axios.post(`${apiConfig.backendBaseUrl}/chores.json`, params).then((response) => {
       // make new ChildChore for each checked child
       params.forEach((value, key) => {
         if (key.slice(0,4)==="name") {
           params = new FormData();
           params.append("child_id", value);
           params.append("chore_id", response.data.id)
-          axios.post(`http://localhost:3000/child_chores.json`, params);
+          axios.post(`${apiConfig.backendBaseUrl}/child_chores.json`, params);
         }
       })
       onClose();

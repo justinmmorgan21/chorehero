@@ -8,6 +8,7 @@ import { LoginPage } from "./LoginPage";
 import { ChildrenIndexPage } from "./ChildrenIndexPage";
 import { ChoresIndexPage } from "./ChoresIndexPage";
 import { RewardsIndexPage } from "./RewardsIndexPage";
+import apiConfig from "./ApiConfig";
 
 const router = createBrowserRouter([
   {
@@ -36,17 +37,17 @@ const router = createBrowserRouter([
       {
         path: "/children",
         element: <ChildrenIndexPage />,
-        loader: () => axios.get("http://localhost:3000/children.json").then( response => response.data )
+        loader: () => axios.get(`${apiConfig.backendBaseUrl}/children.json`).then( response => response.data )
       },
       {
         path: "/chores",
         element: <ChoresIndexPage />,
-        loader: () => axios.get("http://localhost:3000/chores.json").then( response => response.data )
+        loader: () => axios.get(`${apiConfig.backendBaseUrl}/chores.json`).then( response => response.data )
       },
       {
         path: "/rewards",
         element: <RewardsIndexPage />,
-        loader: () => axios.get("http://localhost:3000/rewards.json").then( response => response.data )
+        loader: () => axios.get(`${apiConfig.backendBaseUrl}/rewards.json`).then( response => response.data )
       },
     ],
   },

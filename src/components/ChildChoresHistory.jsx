@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function ChildChoresHistory( { child, onClose } ) {
 
@@ -26,7 +27,7 @@ export function ChildChoresHistory( { child, onClose } ) {
     const params = new FormData();
     params.append("active", true);
     params.append("date_activated", new Date());
-    axios.patch(`http://localhost:3000/child_chores/${child.id}/${choreId}.json`, params).then( () => {
+    axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${choreId}.json`, params).then( () => {
       onClose();
       navigate(`/children`);
     })

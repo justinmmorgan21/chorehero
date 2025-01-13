@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function RewardUpdate( { reward, onClose } ) {
   console.log(reward);
@@ -9,7 +10,7 @@ export function RewardUpdate( { reward, onClose } ) {
     event.preventDefault();
     let params = new FormData(event.target);
     params.forEach((value,key)=>console.log(key, ":", value));
-    axios.patch(`http://localhost:3000/rewards/${reward.id}.json`, params).then(() => {
+    axios.patch(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`, params).then(() => {
       onClose();
       navigate('/rewards');
     })

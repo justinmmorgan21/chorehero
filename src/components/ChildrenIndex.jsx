@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import apiConfig from "../ApiConfig";
 
 export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView }) {
 
@@ -79,8 +80,8 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       params.append(`done_${day.slice(0,3)}`, isChecked)
     )
     }
-    axios.patch(`http://localhost:3000/child_chores/${childId}/${choreId}.json`, params).then(() => {
-      axios.get("http://localhost:3000/children.json").then((response) => {
+    axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${childId}/${choreId}.json`, params).then(() => {
+      axios.get(`${apiConfig.backendBaseUrl}/children.json`).then((response) => {
         setChildrenData(response.data);
       });
     });
@@ -104,7 +105,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   const addPoints = (child) => {
     const params = new FormData();
     params.append("points_available", child.points_available + totalPoints(child));
-    axios.patch(`http://localhost:3000/children/${child.id}.json`, params).then((response) => {
+    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
       setChildrenData((prevChildrenData) =>
         prevChildrenData.map((childData) =>
           childData.id === child.id ? response.data : childData
@@ -119,9 +120,9 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       days.forEach( (day) => {
         params.append(`done_${day.slice(0,3)}`, false);
       })
-      axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then( () => {
+      axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${chore.id}.json`, params).then( () => {
         if (i == child.chores.length - 1) {
-          axios.get("http://localhost:3000/children.json").then((response) => {
+          axios.get(`${apiConfig.backendBaseUrl}/children.json`).then((response) => {
             setChildrenData(response.data);
           });
         }

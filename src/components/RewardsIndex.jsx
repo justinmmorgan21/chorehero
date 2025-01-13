@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function RewardsIndex( { rewardsData, onEdit } ) {
   const rewards = rewardsData.rewards;
@@ -7,7 +8,7 @@ export function RewardsIndex( { rewardsData, onEdit } ) {
   const handleDelete = (reward) => {
     const params = new FormData();
     params.append("active", false);
-    axios.patch(`http://localhost:3000/rewards/${reward.id}.json`, params).then(() => {
+    axios.patch(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`, params).then(() => {
       navigate('/rewards');
     })
   }

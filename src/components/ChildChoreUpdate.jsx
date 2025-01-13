@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function ChildChoreUpdate( { child, chore, onClose } ) {
 
@@ -52,7 +53,7 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
 
     if (countOtherChildren() == 0 || countOtherChildren() == checkedChildCount) {  // if no other children sharing the chore  OR  if all selected, edit that chore
       // if current params match an existing Chore, change ChildChore of THIS Child to the other matching Chore, and delete the current Chore
-      axios.get(`http://localhost:3000/chores.json`).then((response) => {
+      axios.get(`${apiConfig.backendBaseUrl}/chores.json`).then((response) => {
         const chores = response.data;
         let matchesAny = false;
         chores.map( oneChore => {
@@ -69,15 +70,15 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
           if (matches) {
             matchesAny = true;
             params.append("new_chore_id", oneChore.id);
-            axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(()=>{
-              axios.delete(`http://localhost:3000/chores/${chore.id}.json`);
+            axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${chore.id}.json`, params).then(()=>{
+              axios.delete(`${apiConfig.backendBaseUrl}/chores/${chore.id}.json`);
               onClose();
               navigate(`/children`);
             })
           }    
         })
         if (!matchesAny) {
-          axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
+          axios.patch(`${apiConfig.backendBaseUrl}/chores/${chore.id}.json`, params).then(() => {
             onClose();
             navigate(`/children`);
           })
@@ -85,10 +86,10 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
       })
     }
     else {   // if other children share the chore but none or not all are selected, first make new chore with new values and change childchore for THIS child to use new chore_id
-      axios.post(`http://localhost:3000/chores.json`, params).then((response) => {
+      axios.post(`${apiConfig.backendBaseUrl}/chores.json`, params).then((response) => {
         const params = new FormData();
         params.append("new_chore_id", response.data.id);
-        axios.patch(`http://localhost:3000/child_chores/${child.id}/${chore.id}.json`, params).then(() => {
+        axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${chore.id}.json`, params).then(() => {
           if (checkedChildCount == 0) {
             onClose();
             navigate(`/children`);
@@ -97,7 +98,7 @@ export function ChildChoreUpdate( { child, chore, onClose } ) {
         if (checkedChildCount != 0) { // if 1 to less than all selected, change childchore for EACH child selected to new chore_id
           Object.keys(isChildChecked).forEach( (childId, i) => {
             if (isChildChecked[childId]) {
-              axios.patch(`http://localhost:3000/child_chores/${childId}/${chore.id}.json`, params).then(() => {
+              axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${childId}/${chore.id}.json`, params).then(() => {
                 if (i === (Object.keys(isChildChecked).length - 1)) {
                   onClose();
                   navigate(`/children`);

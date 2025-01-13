@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import apiConfig from "../ApiConfig";
 
 export function ChoreEdit( { chore, currentParent, onClose } ) {
 
@@ -57,7 +58,7 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
     event.preventDefault();
     let params = initializeParams(event);
 
-    axios.get(`http://localhost:3000/chores.json`).then((response) => {
+    axios.get(`${apiConfig.backendBaseUrl}/chores.json`).then((response) => {
       const chores = response.data;
       let matchesAny = false;
       chores.map( oneChore => {
@@ -87,7 +88,7 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
             // checked to checked -> update child_chore (new chore_id)
             if (chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
               params.append("new_chore_id", oneChore.id);
-              axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(() => {
+              axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${oneChild.id}/${chore.id}.json`, params).then(() => {
                 if (currentParent.children.length - 1 === i && checkedToUnchecked) {
                   onClose();
                   navigate(`/chores`);
@@ -98,7 +99,7 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
             else if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
               params.append("chore_id", oneChore.id);
               params.append("child_id", oneChild.id);
-              axios.post(`http://localhost:3000/child_chores.json`, params).then(() => {
+              axios.post(`${apiConfig.backendBaseUrl}/child_chores.json`, params).then(() => {
                 if (currentParent.children.length - 1 === i && checkedToUnchecked) {
                   onClose();
                   navigate(`/chores`);
@@ -110,7 +111,7 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
               checkedToUnchecked = true;
               params.append("active", false);
               params.append("date_inactivated", new Date());
-              axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params).then(() => {
+              axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${oneChild.id}/${chore.id}.json`, params).then(() => {
                 if (currentParent.children.length - 1 === i) {
                   onClose();
                   navigate(`/chores`);
@@ -120,7 +121,7 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
           })
           // if boolean says no checked to unchecked, delete old chore
           if (!checkedToUnchecked) {
-            axios.delete(`http://localhost:3000/chores/${chore.id}.json`).then(() => {
+            axios.delete(`${apiConfig.backendBaseUrl}/chores/${chore.id}.json`).then(() => {
               onClose();
               navigate(`/chores`);
             })
@@ -128,17 +129,17 @@ export function ChoreEdit( { chore, currentParent, onClose } ) {
         }
       })
       if (!matchesAny) {
-        axios.patch(`http://localhost:3000/chores/${chore.id}.json`, params).then(() => {
+        axios.patch(`${apiConfig.backendBaseUrl}/chores/${chore.id}.json`, params).then(() => {
           let axiosPromises = currentParent.children.map((oneChild) => {
             if (chore.children.find(child => child.id === oneChild.id) && !isChildChecked[oneChild.id]) {  // checked to unchecked
               params.append("active", false);
               params.append("date_inactivated", new Date());
-              return axios.patch(`http://localhost:3000/child_chores/${oneChild.id}/${chore.id}.json`, params);
+              return axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${oneChild.id}/${chore.id}.json`, params);
             }
             if (!chore.children.find(child => child.id === oneChild.id) && isChildChecked[oneChild.id]) {
               params.append("child_id", oneChild.id);
               params.append("chore_id", chore.id);
-              return axios.post(`http://localhost:3000/child_chores.json`, params);
+              return axios.post(`${apiConfig.backendBaseUrl}/child_chores.json`, params);
             }        
             return Promise.resolve();
           });
