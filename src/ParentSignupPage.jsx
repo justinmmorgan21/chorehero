@@ -30,16 +30,16 @@ export function ParentSignupPage() {
         ))}
       </ul>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div style={{marginBottom:"8px"}}>
           Username: <input name="username" type="text" />
         </div>
-        <div>
+        <div style={{marginBottom:"8px"}}>
           Email: <input name="email" type="email" />
         </div>
-        <div>
+        <div style={{marginBottom:"8px"}}>
           Password: <input name="password" type="password" />
         </div>
-        <div>
+        <div style={{marginBottom:"8px"}}>
           Password confirmation: <input name="password_confirmation" type="password" />
         </div>
         <button type="submit">Signup</button>

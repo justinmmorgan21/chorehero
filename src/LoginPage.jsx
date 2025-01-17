@@ -9,6 +9,7 @@ if (jwt) {
 
 export function LoginPage() {
   const [errors, setErrors] = useState([]);
+  const [toggle, setToggle] = useState(true);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -38,11 +39,17 @@ export function LoginPage() {
         ))}
       </ul>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div style={{marginBottom:"8px"}}>
           Username: <input name="username" type="text" />
         </div>
-        <div>
+        <div style={{marginBottom:"8px"}}>
           Password: <input name="password" type="password" />
+        </div>
+        <div style={{marginBottom:"8px"}}>
+          <input type="checkbox"  onChange={()=>setToggle(!toggle)}/> I am a child
+        </div>        
+        <div hidden={toggle} style={{marginBottom:"8px"}}>
+          Parent Username: <input name="parent_username" type="text" />
         </div>
         <button type="submit">Login</button>
       </form>

@@ -7,14 +7,22 @@ import apiConfig from "./apiConfig";
 
 export function Header() {
   const [currentParent, setCurrentParent] = useState({});
+  const [currentChild, setCurrentChild] = useState({});
 
   const getParent = () => {
     axios.get(`${apiConfig.backendBaseUrl}/parents/current.json`).then(response => {
       setCurrentParent(response.data);
     })
   }
-
+  
+  const getChild = () => {
+    axios.get(`${apiConfig.backendBaseUrl}/children/current.json`).then(response => {
+      setCurrentChild(response.data);
+    })
+  }
+  
   useEffect(getParent, []);
+  useEffect(getChild, []);
 
   let authLinks;
   let navLinks = <></>;
@@ -35,7 +43,7 @@ export function Header() {
       <LogoutLink />
     )
     welcomeUserMessage = (
-      <span>Welcome, {currentParent.username}</span>
+      <span>Welcome, {currentParent.username || currentChild.username}</span>
     )
   }
   
