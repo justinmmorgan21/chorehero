@@ -34,11 +34,18 @@ export function Header() {
       </>
     )
   } else {
-    navLinks = (
-      <>
-      | <Link to="children">Children</Link>  | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link>
-      </>
-    )
+    navLinks = currentParent.username ? 
+      (
+        <>
+        | <Link to="children">Children</Link>  | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link>
+        </>
+      )
+      :
+      (
+        <>
+        | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link>
+        </>
+      )
     authLinks = ( 
       <LogoutLink />
     )

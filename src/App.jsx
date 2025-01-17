@@ -8,6 +8,7 @@ import { LoginPage } from "./LoginPage";
 import { ChildrenIndexPage } from "./ChildrenIndexPage";
 import { ChoresIndexPage } from "./ChoresIndexPage";
 import { RewardsIndexPage } from "./RewardsIndexPage";
+import { ChoresForChildPage } from "./ChoresForChildPage";
 import apiConfig from "./apiConfig";
 
 const router = createBrowserRouter([
@@ -49,6 +50,11 @@ const router = createBrowserRouter([
         element: <RewardsIndexPage />,
         loader: () => axios.get(`${apiConfig.backendBaseUrl}/rewards.json`).then( response => response.data )
       },
+      {
+        path: "/child-chores/",
+        element: <ChoresForChildPage />,
+        loader: (id) => axios.get(`${apiConfig.backendBaseUrl}/children/${id}`.json).then( response => response.data )
+      }
     ],
   },
 ]);
