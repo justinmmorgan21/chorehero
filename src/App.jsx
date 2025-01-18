@@ -51,9 +51,9 @@ const router = createBrowserRouter([
         loader: () => axios.get(`${apiConfig.backendBaseUrl}/rewards.json`).then( response => response.data )
       },
       {
-        path: "/child-chores/",
+        path: "/children/:id",
         element: <ChoresForChildPage />,
-        loader: (id) => axios.get(`${apiConfig.backendBaseUrl}/children/${id}`.json).then( response => response.data )
+        loader: ({params}) => axios.get(`${apiConfig.backendBaseUrl}/children/${params.id}.json`).then( response => response.data )
       }
     ],
   },

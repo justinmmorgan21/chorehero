@@ -43,7 +43,7 @@ export function Header() {
       :
       (
         <>
-        | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link>
+        | <Link to={`children/${currentChild.id}`}>Chores</Link> | <Link to="rewards">Rewards</Link>
         </>
       )
     authLinks = ( 
