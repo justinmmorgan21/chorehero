@@ -32,7 +32,6 @@ export function ChoresForChildPage() {
   
   const [choreStates, setChoreStates] = useState([]);
   const [dayStates, setDayStates] = useState([]);
-  const [bonusPoints, setBonusPoints] = useState(0);
   const [doneWeekly, setDoneWeekly] = useState([]);
   
   useEffect(() => {
@@ -85,32 +84,6 @@ export function ChoresForChildPage() {
     return doneWeekly ? doneWeekly.reduce((acc, chore) => acc + chore.points_awarded, 0) : 0;
   };
 
-  const totalPoints = () => {
-    return parseInt(chorePoints()) + parseInt(bonusPoints);
-  };
-
-  const addPoints = () => {
-    const params = new FormData();
-    params.append("points_available", child.points_available + totalPoints(child));
-    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
-      setChild(response.data);
-    });
-  };
-
-  const clearFields = () => {
-    child.chores.forEach( (chore, i) => {
-      const params = new FormData();
-      days.forEach( (day) => {
-        params.append(`done_${day.slice(0,3)}`, false);
-      })
-      axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${chore.id}.json`, params).then( (response) => {
-        if (i == child.chores.length - 1) {
-          setChild(response.data);
-        }
-      })
-    })
-  }
-
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
@@ -158,11 +131,7 @@ export function ChoresForChildPage() {
           </div>
           <br />
         </div>
-        <div>
-          {/* REWARDS */}
-        </div>
       </div>
-
 
       <Modal onClose={handleChoresViewClose} show={choreHistoryModalVisible}>
         <ChildChoresHistory child={currentChild} onClose={handleChoresViewClose}/>
