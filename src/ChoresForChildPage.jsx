@@ -7,12 +7,9 @@ import apiConfig from "./apiConfig";
 
 export function ChoresForChildPage() {
   const [child, setChild] = useState(useLoaderData());
-  console.log("child: ", child);
 
   const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
   const [currentChild, setCurrentChild] = useState(null);
-  // const [currentChore, setCurrentChore] = useState(null);
-
 
   const handleChoresViewClose = () => {
     setChoreHistoryModalVisible(false);
@@ -22,9 +19,6 @@ export function ChoresForChildPage() {
     setCurrentChild(child);
     setChoreHistoryModalVisible(true);
   }
-
-
-
 
   const days = [
     "monday_chores",
@@ -83,12 +77,7 @@ export function ChoresForChildPage() {
     )
     }
     axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${choreId}.json`, params).then((response) => {
-      // axios.get(`${apiConfig.backendBaseUrl}/children/.json`).then((response) => {
-        
-        console.log(response.data);
-        // setChild(response.data);
-
-      // });
+        setChild(response.data.child);
     });
   };
 
@@ -116,9 +105,7 @@ export function ChoresForChildPage() {
       })
       axios.patch(`${apiConfig.backendBaseUrl}/child_chores/${child.id}/${chore.id}.json`, params).then( (response) => {
         if (i == child.chores.length - 1) {
-          // axios.get(`${apiConfig.backendBaseUrl}/children.json`).then((response) => {
-            setChild(response.data);
-          // });
+          setChild(response.data);
         }
       })
     })
@@ -129,15 +116,13 @@ export function ChoresForChildPage() {
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
         <h1 style={{color:"white", width:"100%", textAlign:"center"}}>{child.name}</h1>
       </div>
-
       <div className="card">
         <div className="child-info">
-          <h2>{child.name}</h2>
           <p>username: {child.username}</p>
           <p>age: {child.age}</p>
           <p>points: {child.points_available}</p>
           <p>money banked: ${child.money_banked}</p>
-          <button style={{padding:'3px 2px'}} onClick={()=>handleChildChoresHistoryView(child)}>View {child.name}{child.name.slice(-1) === "s" ? `'` : `'s`} Chore History</button>
+          <button style={{padding:'3px 2px'}} onClick={()=>handleChildChoresHistoryView(child)}>View {child.name}{child.name?.slice(-1) === "s" ? `'` : `'s`} Chore History</button>
         </div>
         <br />
         <div style={{ display:"flex", flexDirection:"row", boxShadow:'2px 2px 2px gray' }}>
@@ -145,13 +130,13 @@ export function ChoresForChildPage() {
           <div key={day} id="day" style={{ display:'flex', flexDirection:'column', alignItems:'center'}}>
             <h4 style={{ textAlign:'center' }}>{day.split("_")[0].slice(0,1).toUpperCase() + day.split("_")[0].slice(1)}</h4>
             <div>
-              {child[day].map( chore => (
+              {child[day]?.map( chore => (
               <div key={chore.id} >
-                <input type="checkbox"  checked={choreStates[child.id]?.[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(child.id, day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
+                <input type="checkbox"  checked={choreStates[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
               </div>
               ))}
             </div>
-            <p style={{ color: 'green', fontWeight:'bold', marginTop:'12px'}}>{child[day].length > 0 ? (dayStates[child.id]?.[day] ? "COMPLETED" : "") : ""}</p>
+            <p style={{ color: 'green', fontWeight:'bold', marginTop:'12px'}}>{child[day]?.length > 0 ? (dayStates[day] ? "COMPLETED" : "") : ""}</p>
           </div>
           ))}
           <div id="day">
@@ -161,21 +146,14 @@ export function ChoresForChildPage() {
                 <div>Chore</div>
                 <div>Points</div>
               </div>
-              {doneWeekly[child.id]?.map(chore => (
+              {doneWeekly?.map(chore => (
               <div key={chore.id} style={{ display:'flex', flexDirection:'row', justifyContent:'space-between', marginBottom:'6px'}}>
                 <div>{chore.title}</div>
                 <div>{chore.points_awarded}</div>
               </div>
               ))}
               <hr />
-              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{chorePoints(child)}</p>
-              <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
-                <input type="text" size="3" onChange={e=>setBonusPoints(e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
-              </div>
-              <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
-                <p style={{  }}>total points: {totalPoints(child)}</p>
-              </div>
-              <button style={{alignSelf:'end'}} onClick={() => {addPoints(child); clearFields(child);}}>Approve</button>
+              <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{chorePoints()}</p>
             </div>
           </div>
           <br />
