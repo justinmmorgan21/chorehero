@@ -100,7 +100,7 @@ export function ChoresForChildPage() {
         <br />
         <div style={{ display:"flex", flexDirection:"row", boxShadow:'2px 2px 2px gray' }}>
           {days.map( day => (
-          <div key={day} id="day" style={{ display:'flex', flexDirection:'column', alignItems:'center'}}>
+          <div key={day} id="day" style={{ display:'flex', flexDirection:'column', alignItems:'center', border:`${day === days[new Date().getDay() - (new Date().getDay() === 0 ? -6 : 1)] ? 'solid 3px red':'solid 1px black'}`}}>
             <h4 style={{ textAlign:'center' }}>{day.split("_")[0].slice(0,1).toUpperCase() + day.split("_")[0].slice(1)}</h4>
             <div>
               {child[day]?.map( chore => (
