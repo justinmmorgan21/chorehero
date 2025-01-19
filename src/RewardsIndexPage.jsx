@@ -1,9 +1,11 @@
 import { useLoaderData } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RewardCreate } from "./components/RewardCreate";
 import { Modal } from "./components/Modal";
 import { RewardsIndex } from "./components/RewardsIndex";
 import { RewardUpdate } from "./components/RewardUpdate";
+import axios from "axios";
+import apiConfig from "./apiConfig";
 
 export function RewardsIndexPage() {
   const rewards = useLoaderData();
@@ -12,6 +14,22 @@ export function RewardsIndexPage() {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [currentReward, setCurrentReward] = useState(null);
+
+  const [currentParent, setCurrentParent] = useState({});
+  const [currentChild, setCurrentChild] = useState({});
+  const getParent = () => {
+    axios.get(`${apiConfig.backendBaseUrl}/parents/current.json`).then(response => {
+      setCurrentParent(response.data);
+    })
+  }
+  const getChild = () => {
+    axios.get(`${apiConfig.backendBaseUrl}/children/current.json`).then(response => {
+      setCurrentChild(response.data);
+    })
+  }
+  
+  useEffect(getParent, []);
+  useEffect(getChild, []);
 
   const handleCreateClose = () => {
     setCreateModalVisible(false);
@@ -28,13 +46,22 @@ export function RewardsIndexPage() {
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
-        <h1>All rewards</h1>
-        <div>
-          <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add reward</button>
-        </div>
+        {currentParent.username ?
+          <>
+            <h1>All rewards</h1>
+            <div>
+              <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add reward</button>
+            </div>
+          </>
+          :
+          <div style={{display:"flex", margin:"24px 0", fontSize:"1.2em", gap:"32px"}}>
+            <p>Points Available: {currentChild.points_available}</p> |
+            <p>Money Banked: ${currentChild.money_banked}</p>
+          </div>
+        }
       </div>
       <div style={{display:"flex", flexDirection:"row", gap:"100px"}}>
-        <RewardsIndex rewardsData={rewards} onEdit={handleRewardEdit} />
+        <RewardsIndex rewardsData={rewards} onEdit={handleRewardEdit} currentParent={currentParent} currentChild={currentChild}/>
         <div style={{border:"1px solid black", padding:"40px", marginTop:"16px", boxShadow:"2px 2px 2px gray", height:"fit-content", backgroundColor:"white"}}>
           <div>
             <h2>Reward-Points Chart:</h2>
