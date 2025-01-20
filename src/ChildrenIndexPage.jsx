@@ -1,14 +1,24 @@
 import { useLoaderData } from "react-router-dom";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChildrenIndex } from "./components/ChildrenIndex";
 import { Modal } from "./components/Modal";
 import { ChildrenCreate } from "./components/ChildrenCreate";
 import { ChildChoresListModify } from "./components/ChildChoresListModify";
 import { ChildChoresHistory } from "./components/ChildChoresHistory";
 import { ChildChoreUpdate } from "./components/ChildChoreUpdate";
+import axios from "axios";
+import apiConfig from "./apiConfig";
 
 export function ChildrenIndexPage() {
   const childrenData = useLoaderData();
+
+  const [usedRewards, setUsedRewards] = useState({});
+  const getUsedRewards = () => {
+    axios.get(`${apiConfig.backendBaseUrl}/used_rewards.json`).then(response => {
+      setUsedRewards(response.data);
+    })
+  }
+  useEffect(getUsedRewards, []);
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
@@ -47,12 +57,12 @@ export function ChildrenIndexPage() {
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
-        <h1 style={{color:"white", width:"100%", textAlign:"center"}}>Children</h1>
+        <h1 style={{width:"100%", textAlign:"center"}}>Children</h1>
         <div>
           <button onClick={()=>setCreateModalVisible(true)} style={{ width:"100px", fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
         </div>
       </div>
-      <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView}/>
+      <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView} used_rewards={usedRewards}/>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <ChildrenCreate onClose={handleCreateClose}/>
       </Modal>

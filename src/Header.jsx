@@ -50,7 +50,7 @@ export function Header() {
       <LogoutLink />
     )
     welcomeUserMessage = (
-      <span>Welcome, {currentParent.username || currentChild.username}</span>
+      <span style={{marginRight:"24px"}}>Welcome, {currentParent.username || currentChild.username}</span>
     )
   }
   

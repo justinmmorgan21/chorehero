@@ -93,8 +93,7 @@ header {
   color: white;
 }
 
-header a,
-span {
+header a {
   margin: 20px;
   color: white;
 }

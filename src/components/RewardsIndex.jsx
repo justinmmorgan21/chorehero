@@ -19,7 +19,6 @@ export function RewardsIndex( { rewardsData, onEdit, currentParent, currentChild
     const params = new FormData();
     params.append("child_id", currentChild.id);
     params.append("reward_id", reward.id);
-    params.forEach((value, key)=>console.log(key, ": ", value));
     axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then(() => {
       navigate(`/rewards`);
     })

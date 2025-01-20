@@ -9,8 +9,6 @@ import apiConfig from "./apiConfig";
 
 export function RewardsIndexPage() {
   const rewards = useLoaderData();
-  console.log(rewards);
-  console.log(rewards.reward_groups);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [currentReward, setCurrentReward] = useState(null);
@@ -27,9 +25,16 @@ export function RewardsIndexPage() {
       setCurrentChild(response.data);
     })
   }
-  
   useEffect(getParent, []);
   useEffect(getChild, []);
+
+  const [usedRewards, setUsedRewards] = useState({});
+  const getUsedRewards = () => {
+    axios.get(`${apiConfig.backendBaseUrl}/used_rewards.json`).then(response => {
+      setUsedRewards(response.data.filter(usedReward => usedReward.child_id === currentChild.id));
+    })
+  }
+  useEffect(getUsedRewards, [currentChild]);
 
   const handleCreateClose = () => {
     setCreateModalVisible(false);
@@ -48,7 +53,7 @@ export function RewardsIndexPage() {
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
         {currentParent.username ?
           <>
-            <h1>All rewards</h1>
+            <h1 style={{width:"100%", textAlign:"center"}}>Rewards</h1>
             <div>
               <button onClick={()=>setCreateModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add reward</button>
             </div>
@@ -83,6 +88,23 @@ export function RewardsIndexPage() {
             ))}
           </div>
         </div>
+        {currentChild.username ?
+        <div>
+          <p style={{fontWeight:"bold"}}>Waiting for Parent Approval</p>
+          <hr />
+          {usedRewards.length > 0?
+            usedRewards.map(usedReward => (
+              <div key={usedReward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px", margin:"6px 0"}}>
+                <div>{usedReward.reward.title}</div>
+                <div>({usedReward.reward.points_cost} points)</div>
+              </div>
+            ))
+            :null
+          }
+        </div>
+        :
+        null
+        }
       </div>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <RewardCreate onClose={handleCreateClose} />

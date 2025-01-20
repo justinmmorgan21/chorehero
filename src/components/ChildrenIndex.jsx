@@ -2,11 +2,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import apiConfig from "../apiConfig";
 
-export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView }) {
-
+export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView, used_rewards: initialRewardData }) {
   const [childrenData, setChildrenData] = useState(initialChildrenData);
-
+  const [usedRewards, setUsedRewards] = useState(initialRewardData);
   useEffect(() => setChildrenData(initialChildrenData), [initialChildrenData]);
+  useEffect(() => {
+    setUsedRewards(initialRewardData)},
+  [initialRewardData]);
 
   const days = [
     "monday_chores",
@@ -184,8 +186,34 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
           </div>
           <br />
         </div>
-        <div>
-          {/* REWARDS */}
+        <div className="card" style={{padding:'32px 64px 12px 64px'}}>
+          <div style={{display:"flex", width:"50%", marginBottom:'8px', justifyContent:"space-between"}}>
+            <p style={{fontWeight:"bold", marginRight:"48px"}}>Rewards</p>
+            <p>Points Available: {child.points_available}</p>
+            <p>Money Banked: ${child.money_banked}</p>
+          </div>
+          <hr />
+          <div style={{display:"flex", justifyContent:'space-between', width:"50%", margin:"16px 0"}}>
+            <div>
+            {usedRewards.length > 0 ?
+            usedRewards.filter(usedReward => usedReward.child_id === child.id).map(usedReward => (
+                <div key={usedReward.id} style={{display:"flex", width:"100%", justifyContent:"space-between", border:"1px solid black", padding:"12px", marginBottom:"6px", borderRadius:"5px"}}>
+                  <div>
+                    {usedReward.reward.title} 
+                    ({usedReward.reward.points_cost})
+                  </div>
+                  <button>Approve</button>
+                </div>
+              ))
+              :null
+            }
+            </div>
+            <div style={{display:'flex', height:"fit-content"}}>
+              <span >Use Money</span>
+              <input type="text" size="4" style={{margin:"0px 12px 0px 4px"}} defaultValue={"$"}/>
+              <button>Confirm</button>
+            </div>
+          </div>
         </div>
       </div>
       ))}
