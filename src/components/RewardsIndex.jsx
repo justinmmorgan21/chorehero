@@ -2,7 +2,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import apiConfig from "../apiConfig";
 
-export function RewardsIndex( { rewardsData, onEdit, currentParent, currentChild } ) {
+export function RewardsIndex( { rewardsData, onEdit, currentParent, onRedeem } ) {
   
   const rewards = rewardsData.rewards;
   const navigate = useNavigate();
@@ -12,15 +12,6 @@ export function RewardsIndex( { rewardsData, onEdit, currentParent, currentChild
     params.append("active", false);
     axios.patch(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`, params).then(() => {
       navigate('/rewards');
-    })
-  }
-
-  const handleRedeem = (reward) => {
-    const params = new FormData();
-    params.append("child_id", currentChild.id);
-    params.append("reward_id", reward.id);
-    axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then(() => {
-      navigate(`/rewards`);
     })
   }
 
@@ -41,7 +32,7 @@ export function RewardsIndex( { rewardsData, onEdit, currentParent, currentChild
             </div>
             :
             <div>
-              <button style={{height:"fit-content", padding:"4px 12px"}} onClick={() => handleRedeem(reward)}>Redeem</button>
+              <button style={{height:"fit-content", padding:"4px 12px"}} onClick={() => onRedeem(reward)}>Redeem</button>
             </div>
             }
           </div>

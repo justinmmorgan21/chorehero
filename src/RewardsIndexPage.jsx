@@ -48,6 +48,16 @@ export function RewardsIndexPage() {
     setCurrentReward(reward);
   }
 
+  const handleRedeem = (reward) => {
+    const params = new FormData();
+    params.append("child_id", currentChild.id);
+    params.append("reward_id", reward.id);
+    axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
+      window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
+      setUsedRewards([...usedRewards, response.data]);
+    })
+  }
+
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
@@ -66,7 +76,7 @@ export function RewardsIndexPage() {
         }
       </div>
       <div style={{display:"flex", flexDirection:"row", gap:"100px"}}>
-        <RewardsIndex rewardsData={rewards} onEdit={handleRewardEdit} currentParent={currentParent} currentChild={currentChild}/>
+        <RewardsIndex rewardsData={rewards} onEdit={handleRewardEdit} currentParent={currentParent} onRedeem={handleRedeem}/>
         <div style={{border:"1px solid black", padding:"40px", marginTop:"16px", boxShadow:"2px 2px 2px gray", height:"fit-content", backgroundColor:"white"}}>
           <div>
             <h2>Reward-Points Chart:</h2>
@@ -93,7 +103,7 @@ export function RewardsIndexPage() {
           <p style={{fontWeight:"bold"}}>Waiting for Parent Approval</p>
           <hr />
           {usedRewards.length > 0?
-            usedRewards.map(usedReward => (
+            usedRewards.filter(usedReward => usedReward.date_approved === null).map(usedReward => (
               <div key={usedReward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px", margin:"6px 0"}}>
                 <div>{usedReward.reward.title}</div>
                 <div>({usedReward.reward.points_cost} points)</div>

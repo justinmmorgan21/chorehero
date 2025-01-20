@@ -137,13 +137,13 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       const money = usedReward.reward.title.slice(1);
       params.append("money_banked", parseInt(child.money_banked) + parseInt(money));
     }
-    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then(() => {
+    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
+      setChildrenData(childrenData.map(prevChild => prevChild.id === child.id ? response.data : prevChild));
       params.append("date_approved", new Date());
       axios.patch(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`, params).then((response) => {
         setUsedRewards(usedRewards.map(prevUsedReward => prevUsedReward.id === usedReward.id ? response.data : prevUsedReward));
       })
     })
-    
   }
   
   return (
