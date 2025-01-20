@@ -6,9 +6,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   const [childrenData, setChildrenData] = useState(initialChildrenData);
   const [usedRewards, setUsedRewards] = useState(initialRewardData);
   useEffect(() => setChildrenData(initialChildrenData), [initialChildrenData]);
-  useEffect(() => {
-    setUsedRewards(initialRewardData)},
-  [initialRewardData]);
+  useEffect(() => setUsedRewards(initialRewardData), [initialRewardData]);
 
   const days = [
     "monday_chores",
@@ -131,6 +129,22 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       })
     })
   }
+
+  const handleRewardApprove = (child, usedReward) => {
+    let params = new FormData();
+    params.append("points_available", child.points_available - usedReward.reward.points_cost);
+    if (usedReward.reward.title.includes("$")) { 
+      const money = usedReward.reward.title.slice(1);
+      params.append("money_banked", parseInt(child.money_banked) + parseInt(money));
+    }
+    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then(() => {
+      params.append("date_approved", new Date());
+      axios.patch(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`, params).then((response) => {
+        setUsedRewards(usedRewards.map(prevUsedReward => prevUsedReward.id === usedReward.id ? response.data : prevUsedReward));
+      })
+    })
+    
+  }
   
   return (
     <div>
@@ -196,13 +210,13 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
           <div style={{display:"flex", justifyContent:'space-between', width:"50%", margin:"16px 0"}}>
             <div>
             {usedRewards.length > 0 ?
-            usedRewards.filter(usedReward => usedReward.child_id === child.id).map(usedReward => (
+            usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null).map(usedReward => (
                 <div key={usedReward.id} style={{display:"flex", width:"100%", justifyContent:"space-between", border:"1px solid black", padding:"12px", marginBottom:"6px", borderRadius:"5px"}}>
                   <div>
-                    {usedReward.reward.title} 
-                    ({usedReward.reward.points_cost})
+                    {usedReward.reward.title} {" "}
+                    ({usedReward.reward.points_cost} points)
                   </div>
-                  <button>Approve</button>
+                  <button onClick={()=>handleRewardApprove(child, usedReward)}>Approve</button>
                 </div>
               ))
               :null
