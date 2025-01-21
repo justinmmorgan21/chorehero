@@ -8,6 +8,7 @@ import { ChildChoresHistory } from "./components/ChildChoresHistory";
 import { ChildChoreUpdate } from "./components/ChildChoreUpdate";
 import axios from "axios";
 import apiConfig from "./apiConfig";
+import { ChildRewardsHistory } from "./components/ChildRewardsHistory";
 
 export function ChildrenIndexPage() {
   const childrenData = useLoaderData();
@@ -24,6 +25,7 @@ export function ChildrenIndexPage() {
   const [modifyListModalVisible, setModifyModalListVisible] = useState(false);
   const [choreHistoryModalVisible, setChoreHistoryModalVisible] = useState(false);
   const [choreEditModalVisible, setChoreEditModalVisible] = useState(false);
+  const [rewardsHistoryModalVisible, setRewardsHistoryModalVisible] = useState(false);
   const [currentChild, setCurrentChild] = useState(null);
   const [currentChore, setCurrentChore] = useState(null);
 
@@ -39,6 +41,9 @@ export function ChildrenIndexPage() {
   const handleChildChoreEditClose = () => {
     setChoreEditModalVisible(false);
   }
+  const handleRewardsHistoryViewClose = () => {
+    setRewardsHistoryModalVisible(false);
+  }
 
   const handleChildChoresModify = (child) => {
     setCurrentChild(child);
@@ -53,6 +58,10 @@ export function ChildrenIndexPage() {
     setCurrentChild(child);
     setCurrentChore(chore);
   }
+  const handleRewardsHistoryView = (child) => {
+    setCurrentChild(child);
+    setRewardsHistoryModalVisible(true);
+  }
 
   return (
     <div>
@@ -62,7 +71,7 @@ export function ChildrenIndexPage() {
           <button onClick={()=>setCreateModalVisible(true)} style={{ width:"100px", fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ add child</button>
         </div>
       </div>
-      <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView} used_rewards={usedRewards}/>
+      <ChildrenIndex children_data={childrenData} onChildChoresModify={handleChildChoresModify} onChildChoresHistoryView={handleChildChoresHistoryView} used_rewards={usedRewards} onRewardsHistoryView={handleRewardsHistoryView}/>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
         <ChildrenCreate onClose={handleCreateClose}/>
       </Modal>
@@ -74,6 +83,9 @@ export function ChildrenIndexPage() {
       </Modal>
       <Modal onClose={handleChildChoreEditClose} show={choreEditModalVisible}>
         <ChildChoreUpdate child={currentChild} chore={currentChore} onClose={handleChildChoreEditClose}/>
+      </Modal>
+      <Modal onClose={handleRewardsHistoryViewClose} show={rewardsHistoryModalVisible}>
+        <ChildRewardsHistory child={currentChild} />
       </Modal>
     </div>
   );

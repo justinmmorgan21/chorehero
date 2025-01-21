@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import apiConfig from "../apiConfig";
 
-export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView, used_rewards: initialRewardData }) {
+export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView, used_rewards: initialRewardData, onRewardsHistoryView }) {
   const inputRefs = useRef({});
 
   const [childrenData, setChildrenData] = useState(initialChildrenData);
@@ -160,14 +160,9 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   }
 
   const handleUseMoneyClick = (child) => {
-    console.log("money1: ", useMoneyAmounts[child.id]);
-    const moneyAmount = parseInt(useMoneyAmounts[child.id]);
-    console.log("money2: ", moneyAmount);
     const params = new FormData();
-    params.append("money_banked", child.money_banked - moneyAmount);
-    console.log("money3: ", params.get("money_banked"));
+    params.append("money_banked", child.money_banked - parseInt(useMoneyAmounts[child.id]));
     axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
-      console.log(response.data);
       setChildrenData(childrenData.map(prevChild => prevChild.id === child.id ? response.data : prevChild));
       if (inputRefs.current[child.id])
         inputRefs.current[child.id].value = "$";
@@ -233,6 +228,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
             <p style={{fontWeight:"bold", marginRight:"48px"}}>Rewards</p>
             <p>Points Available: {child.points_available}</p>
             <p>Money Banked: ${child.money_banked}</p>
+            <button onClick={() => onRewardsHistoryView(child)}>Rewards History</button>
           </div>
           <hr />
           <div style={{display:"flex", justifyContent:'space-between', width:"50%", margin:"16px 0"}}>
