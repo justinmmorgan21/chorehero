@@ -168,6 +168,14 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
         inputRefs.current[child.id].value = "$";
     })
   }
+
+  const handleRewardDeny = (child, usedReward) => {
+    const params = new FormData();
+    // delete reward and usedreward
+
+
+    // also send email to child announcing denial
+  }
   
   return (
     <div>
@@ -233,18 +241,37 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
           <hr />
           <div style={{display:"flex", justifyContent:'space-between', width:"50%", margin:"16px 0"}}>
             <div>
-            {usedRewards.length > 0 ?
-            usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null).map(usedReward => (
-                <div key={usedReward.id} style={{display:"flex", width:"100%", justifyContent:"space-between", border:"1px solid black", padding:"12px", marginBottom:"6px", borderRadius:"5px"}}>
-                  <div>
-                    {usedReward.reward.title} {" "}
-                    ({usedReward.reward.points_cost} points)
+              {usedRewards.length > 0 ?
+              usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null && !usedReward.reward.kid_requested).map(usedReward => (
+                  <div key={usedReward.id} style={{display:"flex", width:"100%", justifyContent:"space-between", border:"1px solid black", padding:"12px", marginBottom:"6px", borderRadius:"5px"}}>
+                    <div>
+                      {usedReward.reward.title} {" "}
+                      ({usedReward.reward.points_cost} points)
+                    </div>
+                    <button onClick={()=>handleRewardApprove(child, usedReward)}>Approve</button>
                   </div>
-                  <button onClick={()=>handleRewardApprove(child, usedReward)}>Approve</button>
-                </div>
-              ))
-              :null
-            }
+                ))
+                :null
+              }
+              <br />
+              {usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null && usedReward.reward.kid_requested).length > 0 ?
+                  <div>
+                    <p>Child Requested</p>
+                    {(usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null && usedReward.reward.kid_requested).map(usedReward => (
+                      <div key={usedReward.id} style={{display:"flex", width:"100%", justifyContent:"space-between", border:"1px solid black", padding:"12px", marginBottom:"6px", borderRadius:"5px"}}>
+                        <div>
+                          {usedReward.reward.title} {" "}
+                          ({usedReward.reward.points_cost} points)
+                        </div>
+                        <button onClick={()=>handleRewardApprove(child, usedReward)}>Approve</button>
+                        <button onClick={()=>handleRewardDeny(child, usedReward)}>Deny</button>
+                      </div>
+                    )))}
+                  </div>
+                :
+                  null
+              }
+              
             </div>
             <div style={{display:'flex', height:"fit-content"}}>
               <span >Use Money</span>

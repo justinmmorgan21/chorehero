@@ -77,6 +77,9 @@ export function RewardsIndexPage() {
     params.append("active", false);
     params.append("kid_requested", true);
     axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then(() => {
+      // also create a used_reward here
+
+      // also send email to parent announcing request
       handleRequestClose();
       navigate('/rewards');
     })
@@ -133,7 +136,7 @@ export function RewardsIndexPage() {
                   </p>
                 )):null}
           {usedRewards.length > 0?
-            usedRewards.filter(usedReward => usedReward.date_approved === null).map(usedReward => (
+            usedRewards.filter(usedReward => usedReward.date_approved === null && !usedReward.reward.kid_requested).map(usedReward => (
               <div key={usedReward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px", margin:"6px 0"}}>
                 <div>{usedReward.reward.title}</div>
                 <div>({usedReward.reward.points_cost} points)</div>
