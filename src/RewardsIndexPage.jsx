@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { RewardCreate } from "./components/RewardCreate";
 import { Modal } from "./components/Modal";
@@ -6,10 +6,14 @@ import { RewardsIndex } from "./components/RewardsIndex";
 import { RewardUpdate } from "./components/RewardUpdate";
 import axios from "axios";
 import apiConfig from "./apiConfig";
+import { ChildRewardsHistory } from "./components/ChildRewardsHistory";
 
 export function RewardsIndexPage() {
   const rewards = useLoaderData();
+  console.log("rewards: ", rewards);
+  const navigate = useNavigate();
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [requestModalVisible, setRequestModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [currentReward, setCurrentReward] = useState(null);
 
@@ -42,6 +46,9 @@ export function RewardsIndexPage() {
   const handleEditClose = () => {
     setEditModalVisible(false);
   }
+  const handleRequestClose = () => {
+    setRequestModalVisible(false);
+  }
 
   const handleRewardEdit = (reward) => {
     setEditModalVisible(true);
@@ -55,6 +62,23 @@ export function RewardsIndexPage() {
     axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
       setUsedRewards([...usedRewards, response.data]);
       window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
+    })
+  }
+
+  const handleParentCreate = (params) => {
+    params.append("active", true);
+    params.append("kid_requested", false);
+    axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then(() => {
+      handleCreateClose();
+      navigate('/rewards');
+    })
+  }
+  const handleChildRequest = (params) => {
+    params.append("active", false);
+    params.append("kid_requested", true);
+    axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then(() => {
+      handleRequestClose();
+      navigate('/rewards');
     })
   }
 
@@ -72,6 +96,7 @@ export function RewardsIndexPage() {
           <div style={{display:"flex", margin:"24px 0", fontSize:"1.2em", gap:"32px"}}>
             <p>Points Available: {currentChild.points_available}</p> |
             <p>Money Banked: ${currentChild.money_banked}</p>
+            <button onClick={()=>setRequestModalVisible(true)} style={{ fontSize:'1em', padding:'4px 8px', borderRadius:'4px', boxShadow:'1px 1px'}}>+ request new custom reward</button>
           </div>
         }
       </div>
@@ -102,6 +127,11 @@ export function RewardsIndexPage() {
         <div>
           <p style={{fontWeight:"bold"}}>Waiting for Parent Approval</p>
           <hr />
+          {rewards.rewards.length > 0 ? rewards.rewards.filter(reward=>reward.kid_requested && !reward.active).map(reward => (
+                  <p key={reward.id} style={{margin:"3px 2px 2px 0"}}>
+                    {reward.title} / {reward.points_cost} points (custom request pending)
+                  </p>
+                )):null}
           {usedRewards.length > 0?
             usedRewards.filter(usedReward => usedReward.date_approved === null).map(usedReward => (
               <div key={usedReward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px", margin:"6px 0"}}>
@@ -111,16 +141,23 @@ export function RewardsIndexPage() {
             ))
             :null
           }
+          <br />
+          <br />
+          <br />
+          <ChildRewardsHistory child={currentChild}/>
         </div>
         :
         null
         }
       </div>
       <Modal onClose={handleCreateClose} show={createModalVisible}>
-        <RewardCreate onClose={handleCreateClose} />
+        <RewardCreate onClose={handleCreateClose} onCreate={handleParentCreate}/>
       </Modal>
       <Modal onClose={handleEditClose} show={editModalVisible}>
         <RewardUpdate onClose={handleEditClose} reward={currentReward}/>
+      </Modal>
+      <Modal onClose={handleRequestClose} show={requestModalVisible}>
+        <RewardCreate onClose={handleRequestClose} onCreate={handleChildRequest}/>
       </Modal>
     </div>
   );

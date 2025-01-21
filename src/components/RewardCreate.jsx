@@ -2,18 +2,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import apiConfig from "../apiConfig";
 
-export function RewardCreate( { onClose } ) {
+export function RewardCreate( { onClose, onCreate } ) {
   const navigate = useNavigate();
 
   const handleSubmit = event => {
     event.preventDefault();
     let params = new FormData(event.target);
-    
-    // make new Chore
-    axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then(() => {
-      onClose();
-      navigate('/rewards');
-    })
+    onCreate(params);
   }
 
   return (
