@@ -143,7 +143,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
     })
   }
 
-  const handleRewardApprove = (child, usedReward) => {
+  const handleRewardApprove = (child, usedReward, approvingKidRequest) => {
     const params = new FormData();
     params.append("points_available", child.points_available - usedReward.reward.points_cost);
     if (usedReward.reward.title.includes("$")) { 
@@ -155,6 +155,11 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       params.append("date_approved", new Date());
       axios.patch(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`, params).then((response) => {
         setUsedRewards(usedRewards.map(prevUsedReward => prevUsedReward.id === usedReward.id ? response.data : prevUsedReward));
+        if (approvingKidRequest) {
+          //patch reward with active = true
+          params.append("active", true);
+          axios.patch(`${apiConfig.backendBaseUrl}/rewards/${usedReward.reward.id}.json`, params).then((response)=>console.log(response.data));
+        }
       })
     })
   }
@@ -248,13 +253,13 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
                       {usedReward.reward.title} {" "}
                       ({usedReward.reward.points_cost} points)
                     </div>
-                    <button onClick={()=>handleRewardApprove(child, usedReward)}>Approve</button>
+                    <button onClick={()=>handleRewardApprove(child, usedReward, false)}>Approve</button>
                   </div>
                 ))
                 :null
               }
               <br />
-              {usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null && usedReward.reward.kid_requested).length > 0 ?
+              {usedRewards.length > 0 && usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null && usedReward.reward.kid_requested).length > 0 ?
                   <div>
                     <p>Child Requested</p>
                     {(usedRewards.filter(usedReward => usedReward.child_id === child.id && usedReward.date_approved === null && usedReward.reward.kid_requested).map(usedReward => (
@@ -263,7 +268,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
                           {usedReward.reward.title} {" "}
                           ({usedReward.reward.points_cost} points)
                         </div>
-                        <button onClick={()=>handleRewardApprove(child, usedReward)}>Approve</button>
+                        <button onClick={()=>handleRewardApprove(child, usedReward, true)}>Approve</button>
                         <button onClick={()=>handleRewardDeny(child, usedReward)}>Deny</button>
                       </div>
                     )))}

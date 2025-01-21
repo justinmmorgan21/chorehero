@@ -76,12 +76,14 @@ export function RewardsIndexPage() {
   const handleChildRequest = (params) => {
     params.append("active", false);
     params.append("kid_requested", true);
-    axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then(() => {
-      // also create a used_reward here
-
-      // also send email to parent announcing request
-      handleRequestClose();
-      navigate('/rewards');
+    axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then((response) => {
+      params.append("child_id", currentChild.id);
+      params.append("reward_id", response.data.id);
+      axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then(() => {
+        // also send email to parent announcing request
+        handleRequestClose();
+        navigate('/rewards');
+      })
     })
   }
 
@@ -111,17 +113,23 @@ export function RewardsIndexPage() {
             <br />
             {Object.keys(rewards.reward_groups).map(score => (
               <div key={score}>
-                <p style={{fontWeight:"bold", fontSize:"1.1em"}}>{score} points</p>
-                <hr />
+                {rewards.reward_groups[score].filter(reward=>reward.active).length > 0 ?
                 <div>
-                {rewards.reward_groups[score].filter(reward=>reward.active).map(reward => (
-                  <p key={reward.id} style={{margin:"3px 2px 2px 8px"}}>
-                    {reward.title}
-                  </p>
-                ))}
+                  <p style={{fontWeight:"bold", fontSize:"1.1em"}}>{score} points</p>
+                  <hr />
+                  <div>
+                  {rewards.reward_groups[score].filter(reward=>reward.active).map(reward => (
+                    <p key={reward.id} style={{margin:"3px 2px 2px 8px"}}>
+                      {reward.title}
+                    </p>
+                  ))}
+                  </div>
+                  <br />
+                  <br />
                 </div>
-                <br />
-                <br />
+                :
+                null
+                }
               </div>
             ))}
           </div>
