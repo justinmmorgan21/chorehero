@@ -53,8 +53,8 @@ export function RewardsIndexPage() {
     params.append("child_id", currentChild.id);
     params.append("reward_id", reward.id);
     axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
-      window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
       setUsedRewards([...usedRewards, response.data]);
+      window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
     })
   }
 

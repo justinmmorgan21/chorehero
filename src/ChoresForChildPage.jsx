@@ -87,7 +87,7 @@ export function ChoresForChildPage() {
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
-        <h1 style={{color:"white", width:"100%", textAlign:"center"}}>{child.name}</h1>
+        <h1 style={{width:"100%", textAlign:"center"}}>{child.name}</h1>
       </div>
       <div className="card">
         <div className="child-info">
@@ -95,7 +95,7 @@ export function ChoresForChildPage() {
           <p>age: {child.age}</p>
           <p>points: {child.points_available}</p>
           <p>money banked: ${child.money_banked}</p>
-          <button style={{padding:'3px 2px'}} onClick={()=>handleChildChoresHistoryView(child)}>View {child.name}{child.name?.slice(-1) === "s" ? `'` : `'s`} Chore History</button>
+          <button style={{padding:'3px 2px'}} onClick={()=>handleChildChoresHistoryView(child)}>View Chore History</button>
         </div>
         <br />
         <div style={{ display:"flex", flexDirection:"row", boxShadow:'2px 2px 2px gray' }}>

@@ -1,8 +1,10 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import apiConfig from "../apiConfig";
 
 export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView, used_rewards: initialRewardData }) {
+  const inputRefs = useRef({});
+
   const [childrenData, setChildrenData] = useState(initialChildrenData);
   const [usedRewards, setUsedRewards] = useState(initialRewardData);
   useEffect(() => setChildrenData(initialChildrenData), [initialChildrenData]);
@@ -22,13 +24,17 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   const [dayStates, setDayStates] = useState([]);
   const [bonusPoints, setBonusPoints] = useState([]);
   const [doneWeekly, setDoneWeekly] = useState([]);
+  const [useMoneyAmounts, setUseMoneyAmounts] = useState([]);
 
   useEffect(() => {
     const initialBonusPoints = {};
+    const initialUseMoneyAmounts = {};
     childrenData.forEach( child => {
       initialBonusPoints[child.id] = 0;
+      initialUseMoneyAmounts[child.id] = 0;
     });
     setBonusPoints(initialBonusPoints);
+    setUseMoneyAmounts(initialUseMoneyAmounts);
   }, []);
   
   useEffect(() => {
@@ -95,10 +101,17 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
     return parseInt(chorePoints(child)) + parseInt(bonusPoints[child.id]);
   };
 
-  const handleChange = (childId, bonusPoints) => {
+  const handleBonusChange = (childId, bonusPoints) => {
     setBonusPoints((prevBonusPoints) => ({
       ...prevBonusPoints,
       [childId]: bonusPoints || 0
+    }));
+  };
+
+  const handleUseMoneyChange = (childId, useMoneyAmount) => {
+    setUseMoneyAmounts((prevUseMoneyAmounts) => ({
+      ...prevUseMoneyAmounts,
+      [childId]: useMoneyAmount.replace("$", "") || 0
     }));
   };
 
@@ -131,7 +144,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   }
 
   const handleRewardApprove = (child, usedReward) => {
-    let params = new FormData();
+    const params = new FormData();
     params.append("points_available", child.points_available - usedReward.reward.points_cost);
     if (usedReward.reward.title.includes("$")) { 
       const money = usedReward.reward.title.slice(1);
@@ -143,6 +156,21 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       axios.patch(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`, params).then((response) => {
         setUsedRewards(usedRewards.map(prevUsedReward => prevUsedReward.id === usedReward.id ? response.data : prevUsedReward));
       })
+    })
+  }
+
+  const handleUseMoneyClick = (child) => {
+    console.log("money1: ", useMoneyAmounts[child.id]);
+    const moneyAmount = parseInt(useMoneyAmounts[child.id]);
+    console.log("money2: ", moneyAmount);
+    const params = new FormData();
+    params.append("money_banked", child.money_banked - moneyAmount);
+    console.log("money3: ", params.get("money_banked"));
+    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
+      console.log(response.data);
+      setChildrenData(childrenData.map(prevChild => prevChild.id === child.id ? response.data : prevChild));
+      if (inputRefs.current[child.id])
+        inputRefs.current[child.id].value = "$";
     })
   }
   
@@ -190,7 +218,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
               <hr />
               <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{chorePoints(child)}</p>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
-                <input type="text" size="3" onChange={e=>handleChange(child.id, e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
+                <input type="text" size="3" onChange={e=>handleBonusChange(child.id, e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
               </div>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
                 <p style={{  }}>total points: {totalPoints(child)}</p>
@@ -224,8 +252,8 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
             </div>
             <div style={{display:'flex', height:"fit-content"}}>
               <span >Use Money</span>
-              <input type="text" size="4" style={{margin:"0px 12px 0px 4px"}} defaultValue={"$"}/>
-              <button>Confirm</button>
+              <input id="money-input" type="text" size="4" style={{margin:"0px 12px 0px 4px"}} defaultValue={"$"} onChange={e=>handleUseMoneyChange(child.id, e.target.value)} ref={(e)=> (inputRefs.current[child.id]) = e}/>
+              <button onClick={() => handleUseMoneyClick(child)}>Confirm</button>
             </div>
           </div>
         </div>

@@ -1,8 +1,17 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import apiConfig from "../apiConfig";
+import { useState, useEffect} from "react"
 
 export function ChildChoresHistory( { child, onClose } ) {
+
+  const [currentParent, setCurrentParent] = useState({});
+  const getParent = () => {
+    axios.get(`${apiConfig.backendBaseUrl}/parents/current.json`).then(response => {
+      setCurrentParent(response.data);
+    })
+  }
+  useEffect(getParent, []);
 
   const days = [
     "monday",
@@ -61,7 +70,11 @@ export function ChildChoresHistory( { child, onClose } ) {
       {child.inactive_chores.map( chore => (
         <div key={chore.id} >
           <div style={{ display:'flex', flexDirection:'row', gap:'6px'}}>
-            <button onClick={() => handleReactivate(chore.id)}>Reactivate</button>
+            {currentParent.username ?
+              <button onClick={() => handleReactivate(chore.id)}>Reactivate</button>
+              :
+              <li></li>
+            }
             <div style={{fontWeight:'bold', marginLeft:'6px'}}> {chore.title} </div> ,
             {days.map( day => ( 
               chore[`${day}`] ?
