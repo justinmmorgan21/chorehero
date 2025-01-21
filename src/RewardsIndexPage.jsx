@@ -86,6 +86,12 @@ export function RewardsIndexPage() {
     })
   }
 
+  const handleRewardDelete = (usedReward) => {
+    axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`).then((response) => {
+      setUsedRewards(response.data);
+    })
+  }
+
   return (
     <div>
       <div style={{ display:'flex', flexDirection:'row', alignItems:'baseline', justifyContent:'space-between'}}>
@@ -136,20 +142,25 @@ export function RewardsIndexPage() {
         {currentChild.username ?
         <div>
           <p style={{fontWeight:"bold"}}>Waiting for Parent Approval</p>
-          <hr />
-          {rewards.rewards.length > 0 ? rewards.rewards.filter(reward=>reward.kid_requested && !reward.active).map(reward => (
-                  <p key={reward.id} style={{margin:"3px 2px 2px 0"}}>
-                    {reward.title} / {reward.points_cost} points (custom request pending)
-                  </p>
-                )):null}
-          {usedRewards.length > 0?
-            usedRewards.filter(usedReward => usedReward.date_approved === null && !usedReward.reward.kid_requested).map(usedReward => (
-              <div key={usedReward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px", margin:"6px 0"}}>
-                <div>{usedReward.reward.title}</div>
+          <hr style={{width:"75%"}}/>
+          {usedRewards.length > 0 ?
+          usedRewards.filter(usedReward => usedReward.date_approved === null && !usedReward.reward.kid_requested).map(usedReward => (
+            <div key={usedReward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px", margin:"6px 0", width:"75%"}}>
+              <div>{usedReward.reward.title}</div>
+              <div style={{display:"flex"}}>
                 <div>({usedReward.reward.points_cost} points)</div>
+                <button style={{backgroundColor:"#F0CD0D", padding:"1px 2px 1px 1px", marginLeft:"4px", border:"1px solid gray"}} onClick={()=>handleRewardDelete(usedReward)}>X</button>
               </div>
-            ))
-            :null
+
+            </div>
+          )):null
+          }
+          {rewards.rewards.length > 0 ? 
+          rewards.rewards.filter(reward=>reward.kid_requested && !reward.active).map(reward => (
+            <p key={reward.id} style={{margin:"3px 2px 2px 0"}}>
+              {reward.title} / {reward.points_cost} points (custom request pending)
+            </p>
+          )):null
           }
           <br />
           <br />
