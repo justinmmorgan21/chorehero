@@ -156,7 +156,6 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
       axios.patch(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`, params).then((response) => {
         setUsedRewards(usedRewards.map(prevUsedReward => prevUsedReward.id === usedReward.id ? response.data : prevUsedReward));
         if (approvingKidRequest) {
-          //patch reward with active = true
           params.append("active", true);
           axios.patch(`${apiConfig.backendBaseUrl}/rewards/${usedReward.reward.id}.json`, params).then((response)=>console.log(response.data));
         }
@@ -175,9 +174,11 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   }
 
   const handleRewardDeny = (child, usedReward) => {
-    const params = new FormData();
-    // delete reward and usedreward
-
+    axios.delete(`${apiConfig.backendBaseUrl}/rewards/${usedReward.reward.id}.json`).then(()=>{
+      axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`).then((response)=>{
+        setUsedRewards(response.data);
+      });
+    })
 
     // also send email to child announcing denial
   }

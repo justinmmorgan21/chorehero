@@ -23,7 +23,7 @@ export function ChildRewardsHistory( { child } ) {
         </div>
         <hr />
         <ul style={{paddingLeft:"0"}}>
-          {child.used_rewards.map( used_reward => (
+          {child.used_rewards.filter(usedReward => usedReward.reward.active).map( used_reward => (
             <li key={used_reward.id} style={{display:"flex", justifyContent:"space-between", gap:"12px"}}>
               <p>{used_reward.reward.title}</p>
               {used_reward.date_approved ?
