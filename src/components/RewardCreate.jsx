@@ -1,10 +1,4 @@
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import apiConfig from "../apiConfig";
-
-export function RewardCreate( { onClose, onCreate } ) {
-  const navigate = useNavigate();
-
+export function RewardCreate( { onCreate } ) {
   const handleSubmit = event => {
     event.preventDefault();
     let params = new FormData(event.target);

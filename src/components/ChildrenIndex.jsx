@@ -157,7 +157,8 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
         setUsedRewards(usedRewards.map(prevUsedReward => prevUsedReward.id === usedReward.id ? response.data : prevUsedReward));
         if (approvingKidRequest) {
           params.append("active", true);
-          axios.patch(`${apiConfig.backendBaseUrl}/rewards/${usedReward.reward.id}.json`, params).then((response)=>console.log(response.data));
+          params.append("kid_requested", false);
+          axios.patch(`${apiConfig.backendBaseUrl}/rewards/${usedReward.reward.id}.json`, params);
         }
       })
     })

@@ -10,7 +10,6 @@ import { ChildRewardsHistory } from "./components/ChildRewardsHistory";
 
 export function RewardsIndexPage() {
   const rewards = useLoaderData();
-  console.log("rewards: ", rewards);
   const navigate = useNavigate();
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [requestModalVisible, setRequestModalVisible] = useState(false);
