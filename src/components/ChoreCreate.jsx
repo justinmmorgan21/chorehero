@@ -18,10 +18,7 @@ export function ChoreCreate( { onClose, currentParent } ) {
   const handleSubmit = event => {
     event.preventDefault();
     let params = new FormData(event.target);
-    
-    // make new Chore
     axios.post(`${apiConfig.backendBaseUrl}/chores.json`, params).then((response) => {
-      // make new ChildChore for each checked child
       params.forEach((value, key) => {
         if (key.slice(0,4)==="name") {
           params = new FormData();

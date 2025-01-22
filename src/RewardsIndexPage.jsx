@@ -34,7 +34,7 @@ export function RewardsIndexPage() {
   const [usedRewards, setUsedRewards] = useState({});
   const getUsedRewards = () => {
     axios.get(`${apiConfig.backendBaseUrl}/used_rewards.json`).then(response => {
-      setUsedRewards(response.data.filter(usedReward => usedReward.child_id === currentChild.id));
+      setUsedRewards(response.data);
     })
   }
   useEffect(getUsedRewards, [currentChild]);
@@ -59,8 +59,8 @@ export function RewardsIndexPage() {
     params.append("child_id", currentChild.id);
     params.append("reward_id", reward.id);
     axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
-      setUsedRewards([...usedRewards, response.data]);
       window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
+      setUsedRewards([...usedRewards, response.data]);
     })
   }
 
@@ -72,24 +72,48 @@ export function RewardsIndexPage() {
       navigate('/rewards');
     })
   }
+
   const handleChildRequest = (params) => {
     params.append("active", false);
     params.append("kid_requested", true);
     axios.post(`${apiConfig.backendBaseUrl}/rewards.json`, params).then((response) => {
       params.append("child_id", currentChild.id);
       params.append("reward_id", response.data.id);
-      axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then(() => {
+      axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
         // also send email to parent announcing request
         handleRequestClose();
-        navigate('/rewards');
+        setUsedRewards([...usedRewards, response.data]);
       })
     })
   }
 
-  const handleRewardDelete = (usedReward) => {
+  const handleRewardRedeemDelete = (usedReward) => {
     axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`).then((response) => {
       setUsedRewards(response.data);
     })
+  }
+
+  const handleRequestApproval = (reward) => {
+    const params = new FormData();
+    params.append("active", true);
+    params.append("kid_requested", false);
+    axios.patch(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`, params).then((response) => {
+      setUsedRewards((usedRewards) =>
+        usedRewards.map((usedReward) =>
+          reward.id === usedReward.reward.id ? {...usedReward, reward: response.data} : usedReward
+        )
+      );
+    })
+  }
+
+  const handleRequestDeny = (usedReward) => {
+    axios.delete(`${apiConfig.backendBaseUrl}/rewards/${usedReward.reward.id}.json`).then(()=>{
+      axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`).then((response)=>{
+        setUsedRewards(response.data);
+      });
+    })
+
+    // also send email to child announcing denial
   }
 
   return (
@@ -149,16 +173,15 @@ export function RewardsIndexPage() {
               <div>{usedReward.reward.title}</div>
               <div style={{display:"flex"}}>
                 <div>({usedReward.reward.points_cost} points)</div>
-                <button style={{backgroundColor:"#F0CD0D", padding:"1px 2px 1px 1px", marginLeft:"4px", border:"1px solid gray"}} onClick={()=>handleRewardDelete(usedReward)}>X</button>
+                <button style={{backgroundColor:"#F0CD0D", padding:"1px 2px", marginLeft:"4px", border:"1px solid gray"}} onClick={()=>handleRewardRedeemDelete(usedReward)}>X</button>
               </div>
-
             </div>
           )):null
           }
-          {rewards.rewards.length > 0 ? 
-          rewards.rewards.filter(reward=>reward.kid_requested && !reward.active).map(reward => (
-            <p key={reward.id} style={{margin:"3px 2px 2px 0"}}>
-              {reward.title} / {reward.points_cost} points (custom request pending)
+          {usedRewards.length > 0 ? 
+          usedRewards.filter(usedReward => usedReward.reward.kid_requested === true && usedReward.child_id === currentChild.id).map(usedReward => (
+            <p key={usedReward.id} style={{margin:"3px 2px 2px 0"}}>
+              {usedReward.reward.title} / {usedReward.reward.points_cost} points (custom request pending)
             </p>
           )):null
           }
@@ -168,7 +191,23 @@ export function RewardsIndexPage() {
           <ChildRewardsHistory child={currentChild}/>
         </div>
         :
-        null
+        <div>
+        <h3 style={{margin:"24px 0 16px 0"}}>Custom Reward Requests</h3>
+        <hr />
+        <ul>
+          {usedRewards.length > 0 ?
+            usedRewards.filter(usedReward => !usedReward.reward.active && usedReward.reward.kid_requested).map(usedReward => (
+              <li key={usedReward.id} style={{margin:"6px 0"}}>
+                {usedReward.reward.title} / {usedReward.reward.points_cost} points
+                <button style={{padding:"3px 6px", marginLeft:"8px"}} onClick={()=>handleRequestApproval(usedReward.reward)}>Add to Reward List</button>
+                <button style={{padding:"3px 6px", marginLeft:"8px"}} onClick={()=>handleRequestDeny(usedReward)}>Deny</button>
+              </li>
+            ))
+            :
+            null
+          }
+        </ul>
+        </div>
         }
       </div>
       <Modal onClose={handleCreateClose} show={createModalVisible}>

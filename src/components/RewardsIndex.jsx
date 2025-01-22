@@ -7,12 +7,21 @@ export function RewardsIndex( { rewardsData, onEdit, currentParent, onRedeem } )
   const rewards = rewardsData.rewards;
   const navigate = useNavigate();
 
-  const handleDelete = (reward) => {
-    const params = new FormData();
-    params.append("active", false);
-    axios.patch(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`, params).then(() => {
-      navigate('/rewards');
-    })
+  const handleRemove = (reward) => {
+    if (reward.used_rewards.every(used_reward => used_reward.date_approved == null)) {
+      let axiosPromises = reward.used_rewards.map((usedReward) => {
+        return axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`);      
+      });
+      Promise.all(axiosPromises).then(() => {
+        axios.delete(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`).then(() => {
+          navigate('/rewards');
+        })
+      })
+    } else {
+      const params = new FormData();
+      params.append("active", false);
+      axios.patch(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`, params).then(() => navigate('/rewards'))
+    }
   }
 
   return (
@@ -28,7 +37,7 @@ export function RewardsIndex( { rewardsData, onEdit, currentParent, onRedeem } )
             { currentParent.username ?
             <div>
               <button style={{height:"fit-content", padding:"4px 12px", marginRight:"3px"}} onClick={() => onEdit(reward)}>Change Points Cost</button>
-              <button style={{height:"fit-content", padding:"4px 12px"}} onClick={() => handleDelete(reward)}>Remove</button>
+              <button style={{height:"fit-content", padding:"4px 12px"}} onClick={() => handleRemove(reward)}>Remove</button>
             </div>
             :
             <div>

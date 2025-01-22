@@ -1,4 +1,5 @@
 export function RewardCreate( { onCreate } ) {
+
   const handleSubmit = event => {
     event.preventDefault();
     let params = new FormData(event.target);

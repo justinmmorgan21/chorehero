@@ -18,6 +18,8 @@ export function RewardUpdate( { reward, onClose } ) {
     <div>
       <h1>Update Reward</h1>
       <br />
+      <h3>{reward.title}</h3>
+      <hr style={{margin:"8px 0"}}/>
       <form onSubmit={handleSubmit}>
         <label htmlFor="points_cost">New Points Cost: </label>
         <input name="points_cost" type="text" size="4" defaultValue={reward.points_cost}/><br />
