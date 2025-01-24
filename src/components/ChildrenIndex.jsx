@@ -169,13 +169,17 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
   }
 
   const handleUseMoneyClick = (child) => {
-    const params = new FormData();
-    params.append("money_banked", child.money_banked - parseInt(useMoneyAmounts[child.id]));
-    axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
-      setChildrenData(childrenData.map(prevChild => prevChild.id === child.id ? response.data : prevChild));
-      if (inputRefs.current[child.id])
-        inputRefs.current[child.id].value = "$";
-    })
+    if (child.money_banked < useMoneyAmounts[child.id]) {
+      window.alert(`${child.name} has only $${child.money_banked} available`);
+    } else {
+      const params = new FormData();
+      params.append("money_banked", child.money_banked - parseInt(useMoneyAmounts[child.id]));
+      axios.patch(`${apiConfig.backendBaseUrl}/children/${child.id}.json`, params).then((response) => {
+        setChildrenData(childrenData.map(prevChild => prevChild.id === child.id ? response.data : prevChild));
+        if (inputRefs.current[child.id])
+          inputRefs.current[child.id].value = "$";
+      })
+    }
   }
 
   const handleRewardDeny = (child, usedReward) => {
