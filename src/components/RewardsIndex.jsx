@@ -10,7 +10,7 @@ export function RewardsIndex( { rewardsData, onEdit, currentParent, onRedeem } )
   const handleRemove = (reward) => {
     if (reward.used_rewards.every(used_reward => used_reward.date_approved == null)) {
       let axiosPromises = reward.used_rewards.map((usedReward) => {
-        return axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`);      
+        return axios.delete(`${apiConfig.backendBaseUrl}/used_rewards/${usedReward.id}.json`);
       });
       Promise.all(axiosPromises).then(() => {
         axios.delete(`${apiConfig.backendBaseUrl}/rewards/${reward.id}.json`).then(() => {

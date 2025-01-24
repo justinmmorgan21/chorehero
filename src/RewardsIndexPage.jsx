@@ -55,13 +55,18 @@ export function RewardsIndexPage() {
   }
 
   const handleRedeem = (reward) => {
-    const params = new FormData();
-    params.append("child_id", currentChild.id);
-    params.append("reward_id", reward.id);
-    axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
-      window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
-      setUsedRewards([...usedRewards, response.data]);
-    })
+    const totalPointsPending = usedRewards.filter(usedReward=>!usedReward.date_approved).reduce((acc, usedReward) => acc + usedReward.reward.points_cost, 0);
+    if (currentChild.points_available - totalPointsPending < reward.points_cost) {
+      window.alert(`You do not have enough points to redeem ${reward.title}`);
+    } else {
+      const params = new FormData();
+      params.append("child_id", currentChild.id);
+      params.append("reward_id", reward.id);
+      axios.post(`${apiConfig.backendBaseUrl}/used_rewards.json`, params).then((response) => {
+        window.alert(`${reward.title} redeemed... awaiting Parent Approval`);
+        setUsedRewards([...usedRewards, response.data]);
+      })
+    }
   }
 
   const handleParentCreate = (params) => {

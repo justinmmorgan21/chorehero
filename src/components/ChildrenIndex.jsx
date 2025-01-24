@@ -137,6 +137,10 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
         if (i == child.chores.length - 1) {
           axios.get(`${apiConfig.backendBaseUrl}/children.json`).then((response) => {
             setChildrenData(response.data);
+            if (inputRefs.current[child.name])
+              inputRefs.current[child.name].value = "";
+            if (bonusPoints[child.id])
+              bonusPoints[child.id] = 0;
           });
         }
       })
@@ -228,7 +232,7 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
               <hr />
               <p style={{ textAlign:'right', fontWeight:'bold', marginBottom:'6px'}}>{chorePoints(child)}</p>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
-                <input type="text" size="3" onChange={e=>handleBonusChange(child.id, e.target.value)} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
+                <input type="text" size="3" onChange={e=>handleBonusChange(child.id, e.target.value)} ref={(e)=> (inputRefs.current[child.name]) = e} style={{ textAlign:'right' }}/><p style={{ marginRight:'8px' }}>bonus points</p>
               </div>
               <div style={{ display:'flex', flexDirection:'row-reverse', marginBottom:'12px' }}>
                 <p style={{  }}>total points: {totalPoints(child)}</p>
