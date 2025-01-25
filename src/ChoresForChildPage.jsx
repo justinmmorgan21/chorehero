@@ -69,9 +69,7 @@ export function ChoresForChildPage() {
           params.append(`done_${day.slice(0,3)}`, isChecked)
         }
       })
-    ) 
-      : 
-    (
+    ) : (
       params.append(`done_${day.slice(0,3)}`, isChecked)
     )
     }

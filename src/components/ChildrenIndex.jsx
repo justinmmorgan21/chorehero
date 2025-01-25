@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import apiConfig from "../apiConfig";
+import { FaUserEdit } from "react-icons/fa";
 
-export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView, used_rewards: initialRewardData, onRewardsHistoryView }) {
+export function ChildrenIndex({ children_data: initialChildrenData, onChildChoresModify, onChildChoresHistoryView, used_rewards: initialRewardData, onRewardsHistoryView, onChildEdit }) {
   const inputRefs = useRef({});
 
   const [childrenData, setChildrenData] = useState(initialChildrenData);
@@ -192,12 +193,20 @@ export function ChildrenIndex({ children_data: initialChildrenData, onChildChore
     // also send email to child announcing denial
   }
   
+  // const handleChildEdit = (child) => {
+  //   console.log(child.name);
+  // }
+
   return (
     <div>
       {childrenData.map( child => (
       <div key={child.id} className="card">
         <div className="child-info">
+          {/* <img src="" alt="" /> */}
+          <div style={{display:"flex", alignItems:"center"}}>
+          <FaUserEdit style={{border:"1px solid black", borderRadius:"50%", padding:"4px"}} onClick={()=>onChildEdit(child)}/>
           <h2>{child.name}</h2>
+          </div>
           <p>username: {child.username}</p>
           <p>age: {child.age}</p>
           <p>points: {child.points_available}</p>
