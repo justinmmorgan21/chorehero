@@ -4,6 +4,7 @@ import axios from "axios";
 import { Modal } from "./components/Modal";
 import { ChildChoresHistory } from "./components/ChildChoresHistory";
 import apiConfig from "./apiConfig";
+import { Tooltip } from 'react-tooltip';
 
 export function ChoresForChildPage() {
   const [child, setChild] = useState(useLoaderData());
@@ -103,7 +104,9 @@ export function ChoresForChildPage() {
             <div>
               {child[day]?.map( chore => (
               <div key={chore.id} >
-                <input type="checkbox"  checked={choreStates[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(day, chore.id, e.target.checked)}/> {chore.title}{chore.one_timer ? "*" : ""}
+                <input type="checkbox"  checked={choreStates[day]?.[chore.id] || false} onChange={e => handleCheckboxChange(day, chore.id, e.target.checked)}/> 
+                <span data-tooltip-id="chore-description-tooltip" data-tooltip-content={chore.description}> {chore.title}{chore.one_timer ? "*" : ""}</span>
+                <Tooltip id="chore-description-tooltip" />
               </div>
               ))}
             </div>

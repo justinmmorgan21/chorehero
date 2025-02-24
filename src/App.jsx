@@ -10,6 +10,7 @@ import { ChoresIndexPage } from "./ChoresIndexPage";
 import { RewardsIndexPage } from "./RewardsIndexPage";
 import { ChoresForChildPage } from "./ChoresForChildPage";
 import apiConfig from "./apiConfig";
+import 'react-tooltip/dist/react-tooltip.css'
 
 const router = createBrowserRouter([
   {
