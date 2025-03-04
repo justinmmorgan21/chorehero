@@ -40,7 +40,10 @@ export function ParentSignupPage() {
         <div style={{marginBottom:"8px"}}>
           Password confirmation: <input name="password_confirmation" type="password" />
         </div>
-        <button type="submit">Signup</button>
+        <div>
+          <button type="submit">Signup</button>
+          <span>&nbsp;&nbsp;&nbsp;already have an account? <a href="/login">Log in</a></span>
+        </div>
       </form>
     </div>
   );

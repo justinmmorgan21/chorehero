@@ -49,7 +49,10 @@ export function LoginPage() {
         <div hidden={toggle} style={{marginBottom:"8px"}}>
           Parent Username: <input name="parent_username" type="text" />
         </div>
-        <button type="submit">Login</button>
+        <div>
+          <button type="submit">Login</button>
+          <span>&nbsp;&nbsp;&nbsp;<a href="/signup">or create account?</a></span>
+        </div>
       </form>
     </div>
   );
