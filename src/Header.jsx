@@ -37,13 +37,13 @@ export function Header() {
     navLinks = currentParent.username ? 
       (
         <>
-        | <Link to="children">Children</Link>  | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link>
+        <Link to="children">Children</Link>  | <Link to="chores">Chores</Link> | <Link to="rewards">Rewards</Link> |
         </>
       )
       :
       (
         <>
-        | <Link to={`children/${currentChild.id}`}>Chores</Link> | <Link to="rewards">Rewards</Link>
+        <Link to={`children/${currentChild.id}`}>Chores</Link> | <Link to="rewards">Rewards</Link> |
         </>
       )
     authLinks = ( 
@@ -60,7 +60,8 @@ export function Header() {
         <img src={Logo} style={{padding:"0 60px 0 0", margin:"0px"}} alt="" />
         <nav style={{width:"100%", padding:"0px", margin:"0px", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
           <div style={{margin:"0px", padding:"0px"}}>
-            <Link to="/">Home</Link> {navLinks} | {authLinks} 
+            {navLinks} {authLinks} 
+            {/* <Link to="/">Home</Link> {navLinks} | {authLinks}  */}
           </div>
           <span style={{margin:"0 32px 0 0"}}>{welcomeUserMessage}</span>
         </nav>

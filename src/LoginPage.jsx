@@ -20,7 +20,7 @@ export function LoginPage() {
       .then((response) => {
         axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.jwt;
         localStorage.setItem("jwt", response.data.jwt);
-        window.location.href = response.data.role === "parent" ? "/" : `/children/${response.data.user_id}`; // Change this to hide a modal, redirect to a specific page, etc.
+        window.location.href = response.data.role === "parent" ? "/children" : `/children/${response.data.user_id}`; // Change this to hide a modal, redirect to a specific page, etc.
         event.target.reset();
       })
       .catch(() => {
